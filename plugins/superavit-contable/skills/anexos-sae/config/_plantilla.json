@@ -1,0 +1,257 @@
+{
+  "cliente": "<Razón social del cliente>",
+  "ruc": "<RUC>",
+  "corte": "<fecha de corte en texto, ej. 31 de mayo de 2026>",
+  "sistema": "SAE",
+  "alias_terceros": {
+    "<FRAGMENTO EN MAYUSCULAS>": "<Nombre canónico del tercero>"
+  },
+  "anexos": [
+    {
+      "id": "A-1",
+      "desc": "Bancos",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "conciliacion_bancaria",
+      "reporte": "Conciliación bancaria por banco (opción «Excel Detalles»)"
+    },
+    {
+      "id": "A-2",
+      "desc": "Inversiones (plazo fijo y otros)",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "inversiones",
+      "reporte": "Certificado de plazo fijo + mayor",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-3",
+      "desc": "Cuentas por cobrar clientes",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "antiguedad_cartera",
+      "reporte": "Cartera → Estado de cuenta por factura",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-4",
+      "desc": "Cuentas por cobrar tarjetas de crédito",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "lotes_tc",
+      "reporte": "Tarjetas → Lotes pendientes (Gestión/Cobros de Lotes TC)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-5",
+      "desc": "Anticipo a empleados",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "anticipo_empleados",
+      "reporte": "Empleados → anticipos / mayor",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-6",
+      "desc": "Inventarios (mercadería y en tránsito)",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "stock",
+      "reporte": "Inventarios → Resumen Stock Global (+ kárdex si no cuadra)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-7",
+      "desc": "Anticipos a proveedores",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "anticipos_prov",
+      "reporte": "Resumen de Anticipos Proveedores (sumar solo detalle)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-8",
+      "desc": "Crédito tributario e impuestos a favor",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "conciliacion_tributaria",
+      "reporte": "Declaraciones F104 / F102",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-8.1",
+      "desc": "Tasa ambiental y ecovalor",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "mayor_mensual",
+      "reporte": "Mayor",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-9",
+      "desc": "Propiedad, planta y equipo y depreciación",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "activo_fijo",
+      "reporte": "Activos fijos: costo histórico + depreciación (módulo / anexos A8-A9)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-10",
+      "desc": "Cuentas por pagar proveedores",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "antiguedad_cxp",
+      "reporte": "Proveedores → Estado de cuenta por factura",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-11",
+      "desc": "Préstamos bancarios",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "amortizacion",
+      "reporte": "Tabla de amortización (cuadra contra el mayor)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-12",
+      "desc": "Obligaciones con el IESS",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "planillas_iess",
+      "reporte": "Planillas del IESS pendientes de pago",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-13",
+      "desc": "Beneficios sociales y nómina",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "provisiones_nomina",
+      "reporte": "Roles de pago + módulo Resumen de Vacaciones",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-14",
+      "desc": "Participación trabajadores por pagar",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "participacion",
+      "reporte": "Mayor + cálculo 15%",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-15",
+      "desc": "Cuentas por pagar relacionadas",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "cxp_tercero",
+      "reporte": "Mayor (detalle por relacionado)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-16",
+      "desc": "Otras cuentas por pagar",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "cxp_tercero",
+      "reporte": "Mayor (composición del saldo)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-17",
+      "desc": "Depósitos por identificar",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "cxp_tercero",
+      "reporte": "Mayor (partidas pendientes)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-18",
+      "desc": "Anticipos de clientes",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "anticipos_prov",
+      "reporte": "Cartera → Estado de cuenta Global (columna Anticipos)",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-19",
+      "desc": "Ganancias acumuladas",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "ganancias_anuales",
+      "reporte": "Mayor + asientos de cierre 2025",
+      "params": {
+        "<parámetro>": "<valor>"
+      }
+    },
+    {
+      "id": "A-20",
+      "desc": "Resultado del ejercicio",
+      "cuentas": [
+        "<código de cuenta>"
+      ],
+      "tipo": "enlace_pyg",
+      "reporte": "Estado de Resultados (hoja PYG)"
+    }
+  ]
+}

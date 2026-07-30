@@ -1,0 +1,17 @@
+{
+  "name": "superavit-contable",
+  "version": "1.1.0",
+  "description": "Skills del ciclo contable de Superávit Asesores: acta de cuadre mensual, anexos SAE, agentes de compras, retenciones, nómina, impuestos, tarjetas y pasarelas y conciliación bancaria, y revisión de estados financieros en Odoo y en SAE. Los procedimientos contables no viajan en el plugin: cada agente los lee de la wiki de criterios del cliente.",
+  "author": {
+    "name": "Superávit Asesores",
+    "email": "ilopez@superavitasesores.com.ec"
+  },
+  "keywords": [
+    "contabilidad",
+    "ecuador",
+    "odoo",
+    "sri",
+    "acta-de-cuadre",
+    "superavit"
+  ]
+}

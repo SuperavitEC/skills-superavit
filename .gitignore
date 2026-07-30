@@ -1,0 +1,12 @@
+# Configuraciones reales de clientes — nunca se suben al repo público.
+# La plantilla y el README sí.
+plugins/superavit-contable/skills/anexos-sae/config/*.json
+!plugins/superavit-contable/skills/anexos-sae/config/_plantilla.json
+
+# Insumos y salidas de trabajo
+*.xlsx
+*.xls
+*.csv
+*.pdf
+__pycache__/
+*.pyc

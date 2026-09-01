@@ -1,5 +1,39 @@
 # Cambios
 
+## 1.4.0 — 2026-09-01
+
+Dos correcciones en el builder de anexos (`anexos-sae/scripts/armar_anexos.py`). Las dos son
+del **paquete que lee el acta de cuadre**: hasta ahora el Excel llevaba los números correctos
+y el acta no podía usarlos, o los leía inflados. **No cambia ningún criterio contable.**
+
+**Hoja `CUADRE` en el paquete de anexos.** Cada hoja de anexo imprime su caja «Saldo según
+anexo / Saldo según Balance / Diferencia», pero la diferencia se escribe como **fórmula** y
+solo uno de los constructores llegaba a poner esa caja. Quien lee el paquete después no
+recalcula el libro ni puede confiar en el caché de Excel, así que la mayoría de los anexos
+quedaba sin un total legible y su tramo salía «no evaluable». Ahora el paquete lleva una hoja
+`CUADRE` con **una fila por anexo en valores duros** —anexo, descripción, hoja, saldo del
+anexo, saldo del Balance, diferencia y estado—, escrita al inicializar y reescrita después de
+cada `build`, detrás de BG y PYG. La regla que la justifica: **ningún total escrito como
+fórmula cuenta como dato.**
+
+**El saldo del Balance por anexo se suma CON SIGNO, no en valor absoluto.** La columna salía
+de `write_state()`, que sumaba valores absolutos, e inflaba todo anexo con contra-cuenta
+**exactamente al doble de esa cuenta**. El caso típico es propiedad, planta y equipo con su
+depreciación acumulada: en valor absoluto el costo y la depreciación se suman en vez de
+restarse. Como esa cifra es la que se compara contra el total del anexo, el defecto no se
+quedaba en la presentación: producía un descuadre que no existe. Las **16 apariciones** del
+mismo cálculo repartidas por los constructores se unificaron en `saldo_bg_tramo()`; el valor
+absoluto queda aparte en `peso_bg_tramo()`, que sirve para **ordenar los anexos por peso y
+nunca para cuadrar**. Además `build` refresca el saldo del Balance con el que realmente
+comparó: el del `init` puede venir de otro export y la hoja tiene que mostrar las dos cifras
+que produjeron la diferencia.
+
+> **Sobre el número de versión.** Este repositorio venía de la **1.1.0** y salta a **1.4.0**
+> para no colisionar con las versiones publicadas por el otro canal de distribución del
+> plugin. Si alguna de esas versiones intermedias tocó archivos distintos de
+> `armar_anexos.py`, este repositorio no las tiene: conviene contrastarlo antes de tomarlo
+> como la copia completa.
+
 ## 1.1.0 — 2026-07-30
 
 Limpieza del catálogo y refuerzo de la lectura de la wiki. **No cambia ningún criterio

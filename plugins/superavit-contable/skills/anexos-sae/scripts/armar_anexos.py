@@ -105,13 +105,26 @@ def render_bg_anterior(ws,rows):
         r+=1; n+=1
     return n
 
+# ---------- saldo de un tramo en el Balance ----------
+# CON SIGNO. Sumar valores absolutos infla cualquier tramo que traiga una
+# contra-cuenta, exactamente al doble de esa cuenta. El caso típico es el anexo
+# de propiedad, planta y equipo, que incluye la depreciación acumulada: con
+# valores absolutos el costo y la depreciación se suman en vez de restarse.
+# Esta cifra es la que el acta de cuadre compara contra el total del anexo, así
+# que el defecto no queda en la presentación: se cobra como un hallazgo que no
+# existe y que alguien tiene que firmar.
+def saldo_bg_tramo(bgs,cuentas): return round(sum(bgs.get(c,0.0) for c in cuentas),2)
+
+# El valor absoluto sirve para ORDENAR los anexos por peso. Nunca para cuadrar.
+def peso_bg_tramo(bgs,cuentas): return round(sum(abs(bgs.get(c,0.0)) for c in cuentas),2)
+
 # ---------- estado: sidecar JSON (NO va en el Excel del cliente) ----------
 def state_path(salida): return salida + ".estado.json"
 def write_state(salida,cfg,bgs):
     st=[]
     for a in cfg["anexos"]:
-        sbg=round(sum(abs(bgs.get(c,0.0)) for c in a["cuentas"]),2)
-        st.append({"id":a["id"],"desc":a["desc"],"tipo":a["tipo"],"reporte":a["reporte"],"estado":"pendiente","hoja":"","saldo_bg":sbg,"saldo_anexo":"","dif":""})
+        sbg=saldo_bg_tramo(bgs,a["cuentas"])
+        st.append({"id":a["id"],"desc":a["desc"],"tipo":a["tipo"],"reporte":a["reporte"],"estado":"pendiente","hoja":"","saldo_bg":sbg,"peso_bg":peso_bg_tramo(bgs,a["cuentas"]),"saldo_anexo":"","dif":""})
     json.dump(st,open(state_path(salida),"w",encoding="utf-8"),ensure_ascii=False,indent=1)
 def load_state(salida): return json.load(open(state_path(salida),encoding="utf-8"))
 def save_state(salida,st): json.dump(st,open(state_path(salida),"w",encoding="utf-8"),ensure_ascii=False,indent=1)
@@ -149,6 +162,79 @@ def cuadre_box(ws,r,saldo_anexo_cell,saldo_bg):
     ws.cell(r+2,2,"Diferencia").font=F(9,True); cd=ws.cell(r+2,6,f"=F{r}-F{r+1}"); cd.font=F(9,True,GREEN); cd.number_format=NUM; cd.alignment=Alignment("right")
     c=ws.cell(r+4,1,"← Volver al Balance"); c.hyperlink=Hyperlink(ref=c.coordinate, location="BG!A1"); c.font=F(8,True,LINK)
 
+# ---------- D2: hoja CUADRE (la que lee el servidor) ----------
+# El sidecar `.estado.json` ya tenía estos mismos números, pero NO viaja con el
+# Excel: lo que se sube al acta es el .xlsx y nada más. Y las cajas de cuadre de
+# las hojas de anexo escriben la diferencia como FÓRMULA («=F12-F13»), así que
+# ningún total escrito como fórmula cuenta como dato — el servidor no confía en
+# el caché de Excel. Esta hoja es el contrato entre la Fase 2 y el acta: una
+# fila por anexo, TODO en valores duros.
+CUADRE_HOJA = "CUADRE"
+CUADRE_COLS = [("Anexo", 10), ("Descripción", 46), ("Hoja", 30),
+               ("Saldo según anexo", 18), ("Saldo según Balance", 18),
+               ("Diferencia", 14), ("Estado", 16)]
+
+
+def render_cuadre(wb, st):
+    """Reescribe la hoja CUADRE desde el estado. Se llama en cada build, así
+    que refleja siempre el último cálculo de cada anexo."""
+    if CUADRE_HOJA in wb.sheetnames:
+        del wb[CUADRE_HOJA]
+    ws = wb.create_sheet(CUADRE_HOJA)
+    ws.sheet_view.showGridLines = False
+    ws.merge_cells("A1:G1")
+    c = ws["A1"]; c.value = "CUADRE DE ANEXOS CONTRA BALANCE"
+    c.font = F(13, True, "FFFFFF"); c.fill = PatternFill("solid", fgColor=NAVY)
+    c.alignment = Alignment("left", "center", indent=1)
+    ws.row_dimensions[1].height = 26
+    ws.merge_cells("A2:G2")
+    ws["A2"] = ("Resumen en valores; el detalle de cada anexo está en su hoja. "
+                "Esta hoja es la que verifica el acta de cuadre.")
+    ws["A2"].font = F(9, False, "666666")
+    hr = 4
+    for j, (t, w) in enumerate(CUADRE_COLS, 1):
+        cc = ws.cell(hr, j, t)
+        cc.font = F(9, True, "FFFFFF"); cc.fill = PatternFill("solid", fgColor=NAVY)
+        cc.alignment = Alignment("center", "center", wrap_text=True)
+        cc.border = Border(bottom=thin, top=thin, left=thin, right=thin)
+        ws.column_dimensions[get_column_letter(j)].width = w
+    ws.row_dimensions[hr].height = 22
+    r = hr + 1
+    n_ok = n_hall = n_pend = 0
+    for row in st:
+        sa = row.get("saldo_anexo", "")
+        sbg = row.get("saldo_bg", "")
+        dif = row.get("dif", "")
+        est = row.get("estado", "pendiente")
+        ws.cell(r, 1, row["id"]).font = F(9, True)
+        ws.cell(r, 2, row.get("desc", "")).font = F(9)
+        ws.cell(r, 3, row.get("hoja", "")).font = F(9, False, "666666")
+        for j, val in ((4, sa), (5, sbg), (6, dif)):
+            if val in (None, ""):
+                continue
+            # Valor DURO, redondeado. Nunca una fórmula: el servidor no
+            # recalcula el libro y una fórmula llega como texto.
+            cv = ws.cell(r, j, round(float(val), 2))
+            cv.font = F(9, j == 6)
+            cv.number_format = NUM
+            cv.alignment = Alignment("right")
+        color = (GREEN if est == "Cuadra" else
+                 AMBER if est == "Hallazgo" else "666666")
+        ws.cell(r, 7, est).font = F(9, est != "pendiente", color)
+        for j in range(1, 8):
+            ws.cell(r, j).border = Border(bottom=thin)
+        n_ok += est == "Cuadra"
+        n_hall += est == "Hallazgo"
+        n_pend += est not in ("Cuadra", "Hallazgo")
+        r += 1
+    ws.cell(r + 1, 2, f"{len(st)} anexos · {n_ok} cuadran · "
+                      f"{n_hall} con hallazgo · {n_pend} pendientes").font = F(9, True)
+    c = ws.cell(r + 3, 1, "← Volver al Balance")
+    c.hyperlink = Hyperlink(ref=c.coordinate, location="BG!A1")
+    c.font = F(8, True, LINK)
+    return ws
+
+
 # ---------- lectura del mayor (pesado, se filtra aqui) ----------
 def mayor_cuenta(mayor,cuentas):
     cset=set(cuentas); out=[]
@@ -176,7 +262,7 @@ def build_amortizacion(ws,aid,a,args,bgs):
         fd=pf(row["fecha"])
         if fd and fd<=corte: corte_idx=ix
     saldo_corte=round(sched[corte_idx]["saldo"],2) if corte_idx is not None else 0.0
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2)
+    sbg=saldo_bg_tramo(bgs,a["cuentas"])
     corr=round(abs(bgs.get(p.get("corriente"),0)),2); nocorr=round(abs(bgs.get(p.get("no_corriente"),0)),2)
     if not sched:
         ws.cell(5,1,"Falta la tabla de amortización en la configuración del cliente.").font=F(9,False,"B26A00"); return 0.0,sbg
@@ -248,7 +334,7 @@ def build_mayor_extracto(ws,aid,a,args,bgs):
         r+=1
     ws.cell(r,3,"Saldo al corte").font=F(9,True); c=ws.cell(r,6,round(s,2)); c.font=F(9,True); c.number_format=NUM; c.alignment=Alignment("right")
     for j in range(1,7): ws.cell(r,j).border=Border(top=med)
-    sa=round(abs(s),2); sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2)
+    sa=round(abs(s),2); sbg=saldo_bg_tramo(bgs,a["cuentas"])
     cuadre_box(ws,r+2,sa,sbg)
     return sa,sbg
 
@@ -334,7 +420,7 @@ def build_inversiones(ws,aid,a,args,bgs):
     tot_row=r; ws.cell(r,1,"TOTAL").font=F(9,True)
     vt=ws.cell(r,10,f"=SUM(J{hr+1}:J{r-1})"); vt.font=F(9,True); vt.number_format=NUM; vt.alignment=Alignment("right")
     for jj in range(1,11): ws.cell(r,jj).border=Border(top=med)
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2); r+=2
+    sbg=saldo_bg_tramo(bgs,a["cuentas"]); r+=2
     ws.cell(r,8,"Saldo según balance").font=F(9); ws.merge_cells(start_row=r,start_column=8,end_row=r,end_column=9); vb=ws.cell(r,10,sbg); vb.font=F(9); vb.number_format=NUM; vb.alignment=Alignment("right")
     ws.cell(r+1,8,"Diferencia").font=F(9,True); ws.merge_cells(start_row=r+1,start_column=8,end_row=r+1,end_column=9); vd=ws.cell(r+1,10,f"=J{tot_row}-J{r}"); vd.font=F(9,True,GREEN if abs(round(saldo_anexo,2)-sbg)<0.01 else AMBER); vd.number_format=NUM; vd.alignment=Alignment("right")
     nr=r+3
@@ -351,7 +437,7 @@ def build_antiguedad(ws,aid,a,args,bgs):
     cs=(a.get("params") or {}).get("corte","2026-05-31"); yy,mm,dd=[int(x) for x in cs.split("-")]; corte=date(yy,mm,dd)
     anexo_header(ws,aid,a["desc"],("Antigüedad al",corte.strftime("%d/%m/%Y")),ncols=8)
     nombres={cod:nom for cod,nom,niv,sal,tot in parse_eef(args.bg)}
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2)
+    sbg=saldo_bg_tramo(bgs,a["cuentas"])
     def_acct=max(a["cuentas"],key=lambda c:abs(bgs.get(c,0))); def_name=nombres.get(def_acct,"").title()
     override=(a.get("params") or {}).get("cuentas_relacionados",{})
     path=os.path.join(args.insumos or "", (a.get("params") or {}).get("reporte_archivo",""))
@@ -444,7 +530,7 @@ def build_antiguedad(ws,aid,a,args,bgs):
 
 def build_lotes_tc(ws,aid,a,args,bgs):
     anexo_header(ws,aid,a["desc"],ncols=6)
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2)
+    sbg=saldo_bg_tramo(bgs,a["cuentas"])
     mv=mayor_cuenta(args.mayor,a["cuentas"])
     si=sum(m["debe"]+m["haber"] for m in mv if m["doc"]=="SALDOS INICIALES")
     cob=sum(m["debe"] for m in mv if "TARJETA" in m["doc"].upper())
@@ -476,7 +562,7 @@ def build_anticipo_empleados(ws,aid,a,args,bgs):
     from datetime import datetime as _dt
     anexo_header(ws,aid,a["desc"],ncols=7)
     for col,w in [("A",13),("B",15),("C",16),("D",13),("E",13),("F",13),("G",14)]: ws.column_dimensions[col].width=w
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2)
+    sbg=saldo_bg_tramo(bgs,a["cuentas"])
     KW=alias_terceros()   # nombres de empleados: salen del config del cliente
     def canon(nom):
         u=str(nom or "").upper()
@@ -601,7 +687,7 @@ def build_stock(ws,aid,a,args,bgs):
     from collections import defaultdict
     anexo_header(ws,aid,a["desc"],ncols=9)
     for col,w in [("A",16),("B",14),("C",40),("D",16),("E",10),("F",10),("G",10),("H",13),("I",15)]: ws.column_dimensions[col].width=w
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2)
+    sbg=saldo_bg_tramo(bgs,a["cuentas"])
     path=os.path.join(args.insumos or "", (a.get("params") or {}).get("reporte_archivo",""))
     if not os.path.exists(path):
         ws.cell(5,1,"Falta el Resumen Stock Global en insumos: "+path).font=F(9,False,"B26A00"); return 0.0, sbg
@@ -701,7 +787,7 @@ def build_anticipos_prov(ws,aid,a,args,bgs):
     import os
     from datetime import datetime as _dt
     anexo_header(ws,aid,a["desc"],ncols=6)
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2)
+    sbg=saldo_bg_tramo(bgs,a["cuentas"])
     path=os.path.join(args.insumos or "", (a.get("params") or {}).get("reporte_archivo",""))
     if not os.path.exists(path):
         ws.cell(5,1,"Falta el Resumen de Anticipos Proveedores en insumos: "+path).font=F(9,False,"B26A00"); return 0.0, sbg
@@ -918,7 +1004,7 @@ def build_conciliacion_tributaria(ws,aid,a,args,bgs):
     for col,frm in [(4,"=SUM(D%d:D%d)"%(first,r-1)),(5,"=SUM(E%d:E%d)"%(first,r-1)),(6,"=SUM(F%d:F%d)"%(first,r-1))]:
         cc=ws.cell(r,col,frm); cc.font=F(9,True); cc.number_format=NUM; cc.alignment=Alignment("right")
     for cx in range(1,7): ws.cell(r,cx).border=Border(top=med)
-    sbg=round(sum(abs(bgs.get(c,0)) for c in cuentas),2); tot=round(sa,2); r+=2
+    sbg=saldo_bg_tramo(bgs,cuentas); tot=round(sa,2); r+=2
     nr=r; notas=list(p.get("observaciones",[]))
     if notas:
         ws.cell(nr,1,"Observaciones").font=F(9,True,NAVY); nr+=1
@@ -957,7 +1043,7 @@ def build_mayor_mensual(ws,aid,a,args,bgs):
         ws.cell(r,1,"Saldo al corte").font=F(8,True); ws.merge_cells(start_row=r,start_column=1,end_row=r,end_column=5); cc=ws.cell(r,6,round(sal,2)); cc.font=F(8,True); cc.number_format=NUM; cc.alignment=Alignment("right")
         for jx in range(1,7): ws.cell(r,jx).border=Border(top=thin)
         saldo_rows.append(r); total+=sal; r+=2
-    sbg=round(sum(abs(bgs.get(c,0)) for c in cuentas),2)
+    sbg=saldo_bg_tramo(bgs,cuentas)
     trow=r; ws.cell(r,4,"TOTAL saldos al corte").font=F(9,True); cc=ws.cell(r,6,"="+"+".join("F%d"%x for x in saldo_rows) if saldo_rows else round(total,2)); cc.font=F(9,True); cc.number_format=NUM; cc.alignment=Alignment("right")
     ws.cell(r+1,4,"Saldo según balance").font=F(9); cc=ws.cell(r+1,6,sbg); cc.number_format=NUM; cc.alignment=Alignment("right"); cc.font=F(9)
     dft=round(total-sbg,2); ws.cell(r+2,4,"Diferencia").font=F(9,True); cc=ws.cell(r+2,6,"=F%d-F%d"%(trow,r+1)); cc.font=F(9,True,GREEN if abs(dft)<0.01 else AMBER); cc.number_format=NUM; cc.alignment=Alignment("right")
@@ -1131,7 +1217,7 @@ def build_planillas_iess(ws,aid,a,args,bgs):
     PERS=p.get("tasa_personal",9.45)/100.0; PATR=p.get("tasa_patronal",11.15)/100.0; EXTRA=p.get("tasa_iece_secap",1.0)/100.0
     ins=args.insumos or ""
     MESL=["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
-    cuentas=a["cuentas"]; sbg=round(sum(abs(bgs.get(c,0)) for c in cuentas),2)
+    cuentas=a["cuentas"]; sbg=saldo_bg_tramo(bgs,cuentas)
     GREY="EAEDF1"
     def numc(r,col,v,bold=False,color="000000",sz=9):
         c=ws.cell(r,col,v); c.font=F(sz,bold,color); c.alignment=Alignment("right")
@@ -1366,7 +1452,7 @@ def build_provisiones_nomina(ws,aid,a,args,bgs):
     p=a.get("params",{}) or {}
     corte=int(p.get("corte_mes",5))
     MESL=["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
-    cuentas=a["cuentas"]; sbg=round(sum(abs(bgs.get(c,0)) for c in cuentas),2)
+    cuentas=a["cuentas"]; sbg=saldo_bg_tramo(bgs,cuentas)
     NOM={"201070401":"Sueldos por pagar","201070402":"Finiquitos por pagar","201070403":"Provisión décimo tercer sueldo",
          "201070404":"Provisión décimo cuarto sueldo","201070405":"Provisión vacaciones"}
     GREY="EAEDF1"; meses=list(range(1,corte+1))
@@ -1596,7 +1682,7 @@ def build_provisiones_nomina(ws,aid,a,args,bgs):
 def build_participacion(ws,aid,a,args,bgs):
     p=a.get("params",{}) or {}; anios=p.get("anios",[2023,2024,2025])
     anexo_header(ws,aid,a["desc"],ncols=6)
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2); ins=args.insumos or ""
+    sbg=saldo_bg_tramo(bgs,a["cuentas"]); ins=args.insumos or ""
     def numc(r,col,v,bold=False,color="000000",sz=9):
         c=ws.cell(r,col,v); c.font=F(sz,bold,color); c.alignment=Alignment("right")
         if isinstance(v,(int,float)): c.number_format=NUM
@@ -1668,7 +1754,7 @@ def build_participacion(ws,aid,a,args,bgs):
 def build_ganancias_anuales(ws,aid,a,args,bgs):
     p=a.get("params",{}) or {}; cta=a["cuentas"][0]
     anexo_header(ws,aid,a["desc"],ncols=6)
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2)
+    sbg=saldo_bg_tramo(bgs,a["cuentas"])
     def numc(r,col,v,bold=False,color="000000",sz=9):
         c=ws.cell(r,col,v); c.font=F(sz,bold,color); c.alignment=Alignment("right")
         if isinstance(v,(int,float)): c.number_format=NUM
@@ -1711,7 +1797,7 @@ def build_cxp_tercero(ws,aid,a,args,bgs):
     import unicodedata
     p=a.get("params",{}) or {}; cta=a["cuentas"][0]
     anexo_header(ws,aid,a["desc"],ncols=6)
-    sbg=round(sum(abs(bgs.get(c,0)) for c in a["cuentas"]),2); ins=args.insumos or ""
+    sbg=saldo_bg_tramo(bgs,a["cuentas"]); ins=args.insumos or ""
     def numc(r,col,v,bold=False,color="000000",sz=9):
         c=ws.cell(r,col,v); c.font=F(sz,bold,color); c.alignment=Alignment("right")
         if isinstance(v,(int,float)): c.number_format=NUM
@@ -1793,7 +1879,7 @@ BUILDERS={"amortizacion":build_amortizacion,"mayor_extracto":build_mayor_extract
 import re as _re
 
 def reorder(wb):
-    base=[n for n in ("BG","PYG","BG ANTERIOR") if n in wb.sheetnames]
+    base=[n for n in ("BG","PYG",CUADRE_HOJA,"BG ANTERIOR") if n in wb.sheetnames]
     anx=[n for n in wb.sheetnames if n not in base]
     def k(n):
         m=_re.match(r"A-(\d+)(?:\.(\d+))?",n); 
@@ -1812,8 +1898,8 @@ def cmd_init(args):
     nant=None
     if getattr(args,"bg_anterior",None):
         nant=render_bg_anterior(wb.create_sheet("BG ANTERIOR"),parse_eef(args.bg_anterior))
-    wb.save(args.salida)
     write_state(args.salida,cfg,bgs)
+    render_cuadre(wb,load_state(args.salida)); reorder(wb); wb.save(args.salida)
     print(f"Inicializado: {args.salida}")
     if nant is not None: print(f"BG ANTERIOR: {nant} cuentas con saldo de cierre del mes anterior (cadena de continuidad del acta)")
     else: print("sin BG ANTERIOR: la cadena de continuidad del acta quedará como aviso")
@@ -1850,8 +1936,11 @@ def cmd_build(args):
     ws=wb.create_sheet(title)
     sa,sbg=BUILDERS[tipo](ws,a["id"],a,args,bgs)
     dif=round(sa-sbg,2); est="Cuadra" if abs(dif)<0.01 else "Hallazgo"
-    update_state(st,a["id"],estado=est,hoja=title,saldo_anexo=sa,dif=dif); save_state(args.salida,st)
-    link_bg(wb,a["id"]); reorder(wb); wb.save(args.salida)
+    # `saldo_bg` se refresca con el que REALMENTE se comparó: el del init
+    # puede venir de otro export del Balance, y la hoja CUADRE tiene que
+    # mostrar las dos cifras que produjeron esa diferencia.
+    update_state(st,a["id"],estado=est,hoja=title,saldo_anexo=sa,saldo_bg=sbg,dif=dif); save_state(args.salida,st)
+    link_bg(wb,a["id"]); render_cuadre(wb,st); reorder(wb); wb.save(args.salida)
     print(f"{a['id']} {a['desc']}: {est} · anexo {sa:,.2f} vs balance {sbg:,.2f} · dif {dif:,.2f}")
 
 if __name__=="__main__":

@@ -1,5 +1,13 @@
 # Cambios
 
+## 1.5.0 — manifiestos alineados (2026-09-01)
+
+Bump **sin cambio de contenido**, para que los dos manifiestos reconozcan la publicación de
+hoy. `plugins/superavit-contable/.claude-plugin/plugin.json` ya había subido a `1.5.0` con las
+skills reincorporadas; el que se había quedado en `1.1.0` es el `metadata.version` de
+`.claude-plugin/marketplace.json`, que es el número que ve quien agrega el marketplace. Ningún
+archivo de skill cambia con este commit.
+
 ## 1.5.0 — 2026-09-01
 
 **Reincorpora lo que traían las versiones 1.2.0 y 1.3.0 del canal de My Uploads y que este

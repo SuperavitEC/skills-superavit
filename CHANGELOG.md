@@ -1,5 +1,25 @@
 # Cambios
 
+## 1.5.0 — 2026-09-01
+
+**Reincorpora lo que traían las versiones 1.2.0 y 1.3.0 del canal de My Uploads y que este
+repositorio no tenía.** Son dos skills de procedimiento que se habían quedado atrás:
+
+- **`agente-compras`** — actualizada.
+- **`agente-retenciones`** — actualizada, y ahora trae su carpeta `references/` con
+  `comprobantes-sri.md` (cómo leer los comprobantes de retención del SRI, incluidos los
+  v1.0.0 viejos, que cuelgan las retenciones de `<impuesto>` en vez de `<docsSustento>`) y
+  `recibidas-odoo.md` (cómo cargar en Odoo las retenciones recibidas de clientes).
+
+Con esto **las dos fuentes quedan iguales y este repositorio pasa a ser la única**: lo que se
+edite acá es lo que se distribuye, y el marketplace se publica desde acá.
+
+> **Una diferencia deliberada respecto de la copia instalada.** La salida de ejemplo de
+> `comprobantes-sri.md` mostraba la razón social de un cliente real. Este repositorio es
+> **público**, así que el ejemplo va con una razón social ficticia del mismo largo — el largo
+> importa, porque el script recorta el campo a 14 caracteres y eso es parte de lo que el
+> ejemplo enseña. El procedimiento no cambia en nada.
+
 ## 1.4.0 — 2026-09-01
 
 Dos correcciones en el builder de anexos (`anexos-sae/scripts/armar_anexos.py`). Las dos son

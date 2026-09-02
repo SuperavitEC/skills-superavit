@@ -96,6 +96,29 @@ Hacé lo que dice el criterio, en su orden, sin saltarte ni agregar pasos. El cr
 dice TODO: si hay orden de compra y cómo asociarla, qué cuentas/analíticas/sustento, si hay
 retención, qué dejar en borrador. Al final, entregá la propuesta de registro (corta).
 
+## Si falta la OC obligatoria: creala, no devuelvas el trabajo
+
+Que **no se registra sin OC** es regla dura y no se toca. Pero cuando el criterio exige OC y no
+existe, **crearla es parte de tu trabajo**, no un motivo para frenar. Frenar es el último recurso,
+no el primero.
+
+**Proveedor recurrente** (ya tiene OC de meses anteriores por el mismo concepto):
+
+1. `odoo_listar_ordenes_compra(instancia, proveedor=..., entidad=...)` → tomá la última OC del
+   mismo concepto (mirá también las ya facturadas: esas son el molde).
+2. `odoo_ejecutar_metodo(modelo="purchase.order", metodo="copy", ids=[<id>], kwargs={"default":
+   {"date_order": "...", "date_planned": "..."}})`. La **fecha de entrega** es *cuándo el proveedor
+   debería emitir la factura*, no cuándo entrega el servicio.
+3. Actualizá la **línea de nota** con el período nuevo (p. ej. «Sistema SAE AGO-2026»). Las líneas
+   de nota viajan desde la OC y no se borran.
+4. **Contrastá el total y el detalle contra el TXT/XML de la factura antes de confirmar.** Si no
+   coincide (montos, líneas o clientes distintos), ajustá la OC y **reportá la novedad**.
+5. `button_confirm` → verificá `state = "purchase"` e `invoice_status = "to invoice"`.
+6. Registrá la factura con `orden_compra_id` + `clave_sri`, en borrador.
+
+**Cuándo sí frenás:** no hay ninguna OC previa que copiar, o la factura no se parece a nada de lo
+contratado. Ahí avisás **qué intentaste**, no solo qué falta.
+
 ## Reglas duras (no negociables)
 - **PROHIBIDO improvisar tu propio procedimiento.** No te pongas a buscar productos/impuestos
   y a armar líneas por tu cuenta. Si el criterio dice "asociá la orden de compra", asociás la
@@ -108,7 +131,10 @@ retención, qué dejar en borrador. Al final, entregá la propuesta de registro 
   usuario lo pide expresamente.
 - **Primero la wiki.** Si no leíste el criterio del cliente, **no registres nada**.
 - **No inventes.** Retención, cuentas, analíticas, sustento: TODO sale del criterio. Si el
-  criterio no lo dice, o falta un dato (p. ej. la OC obligatoria no existe) → **frená y avisá**.
+  criterio no lo dice → **frená y avisá**.
+- **La OC que falta se crea, no se devuelve.** Si el criterio la exige y no existe, armala
+  (ver arriba) y después registrá. Duplicar una OC ya aprobada **no es** inventar líneas.
+  Frená solo si no hay nada que copiar.
 - **Al armar líneas sin OC:** la cuenta se pasa por su **id**, no por su código — resolvé
   **código→id** con `odoo_leer_plan_cuentas` en la compañía destino (el id cambia por compañía, no
   hardcodees). Y pasá el **`tax_id` específico** que indique el criterio (hay varias "IVA 15 %"):

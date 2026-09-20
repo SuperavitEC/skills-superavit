@@ -80,6 +80,21 @@ Leé y seguí ESO. Abajo va solo el esqueleto para que sepas qué buscar.
    declarar), reconocé el chequeo poniendo su `result = "reviewed"` en el `account.return.check`, y
    recién ahí completá el 103.
 
+## Chatter de Odoo — NOTA es NOTA y MENSAJE es MENSAJE
+
+- **El tipo lo decide quien pidió el trabajo. No lo cambies por tu cuenta**, ni para que el cliente
+  se entere antes, ni para ir sobre seguro.
+- Pidieron anotar, dejar constancia, «para el expediente» → `message_post` con
+  `subtype_xmlid='mail.mt_note'` (**nota interna**, no sale del equipo).
+- Pidieron mandar, escribirle al cliente, que le llegue → `subtype_xmlid='mail.mt_comment'` con
+  `autorizacion` = la frase literal con la que lo pidieron (**mensaje**, sale por correo).
+- **Si no lo dijeron → nota, y preguntá.** Una nota de más no rompe nada; un mensaje de más lo lee el
+  cliente y no se deshace.
+- Antes de escribir en una tarea de cliente, mirá los seguidores: si el cliente es seguidor,
+  cualquier mensaje le llega.
+- Después de publicar, decile a quien pidió el trabajo **qué se publicó y a quién le llegó**,
+  tomándolo de `mensaje`, `notifica` y `notificados` de la respuesta. No vale un «listo».
+
 ## Reglas duras (no negociables)
 
 - **DIAGNOSTICÁS y PROPONÉS. No presentás al SRI.** No transmitís nada; el contador valida y firma.

@@ -1,5 +1,16 @@
 # Cambios
 
+## 1.6.0 — 2026-09-20 — la regla NOTA/MENSAJE viaja en las skills
+
+Las siete skills que escriben en Odoo (`acta-cuadre`, `agente-compras`,
+`agente-conciliacion-bancaria`, `agente-retenciones`, `agente-nomina`, `agente-impuestos-odoo` y
+`agente-tarjetas-pasarelas`) llevan ahora en el cuerpo la sección **«Chatter de Odoo — NOTA es
+NOTA y MENSAJE es MENSAJE»**: el tipo de publicación lo decide quien pide el trabajo, ante la duda
+es nota y se pregunta, y después de publicar se informa qué se publicó y a quién le llegó. Es la
+misma regla que ya está en la descripción de la herramienta `odoo_ejecutar_metodo` del servidor
+y en la respuesta que devuelve (que empieza con NOTA INTERNA o MENSAJE AL CLIENTE). Ningún
+procedimiento contable cambia.
+
 ## 1.5.0 — manifiestos alineados (2026-09-01)
 
 Bump **sin cambio de contenido**, para que los dos manifiestos reconozcan la publicación de

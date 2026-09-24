@@ -1,5 +1,24 @@
 # Cambios
 
+## 1.7.0 — 2026-09-24 — `acta-cuadre` al día con el modelo del 1 de octubre
+
+Solo cambia la skill `acta-cuadre`. Tiene que estar instalada antes del jueves 1-oct a las 09:00,
+cuando el motor de tareas crea las tareas con los nombres nuevos.
+
+- **Nombres nuevos de las tareas.** La skill se activa con «Revisión interna de EEFF» y «Entrega
+  del mes», y también con los nombres de antes («EEFF Preliminares» y «Emisión de Estados
+  Financieros»), porque las tareas de julio y agosto que siguen abiertas los conservan.
+- **Entrega en fecha.** El Paso 5 ya no dice que sin acta en firme no se emiten los EEFF. La
+  entrega sale el día comprometido, con su **Estado de la entrega** (En firme, Con salvedades o
+  Con limitación) y en el chatter el folio o, si quedó en preliminar por limitación, el sha256.
+  Lo que depende del cliente va en «Información pendiente del cliente»; lo que depende de la
+  firma se corrige. La regla dura cambia en el mismo sentido.
+- **Salvedades, igual que el servidor.** Hasta USD 500,00 las aprueba el supervisor del cliente
+  con su propio usuario; por encima, solo Irwin. Quedan amarradas al monto aprobado más o menos
+  la tolerancia del tramo, no al centavo.
+- **Tuteo.** El archivo pasa entero de voseo a tuteo, porque los agentes copian el registro de
+  la skill al hablar con el equipo.
+
 ## 1.6.0 — 2026-09-20 — la regla NOTA/MENSAJE viaja en las skills
 
 Las siete skills que escriben en Odoo (`acta-cuadre`, `agente-compras`,

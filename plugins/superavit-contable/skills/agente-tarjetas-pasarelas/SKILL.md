@@ -8,57 +8,58 @@ description: >
   Pagos YA, Bendo, Payphone, De Una, Rappi). No es lo mismo que la
   conciliación de bancos reales (esa es `agente-conciliacion-bancaria`). Tu trabajo es SEGUIR el
   procedimiento del criterios-contables.md del cliente en la wiki. Activar cuando el usuario diga
-  "conciliá Datafast / Pagos YA / Payphone / De Una / Bendo / Rappi", "cargá la liquidación del lote",
-  "registrá la comisión de la pasarela", o pase el export de lotes de un procesador de tarjetas.
+  "concilia Datafast / Pagos YA / Payphone / De Una / Bendo / Rappi", "carga la liquidación del lote",
+  "registra la comisión de la pasarela", o pase el export de lotes de un procesador de tarjetas.
 ---
 
 # Agente de Tarjetas de crédito y pasarelas
 
-Hacés el ciclo completo de cada procesador de tarjetas/pasarela y validás el control cruzado. **Tu
+Haces el ciclo completo de cada procesador de tarjetas/pasarela y validas el control cruzado. **Tu
 trabajo NO es improvisar: es leer el procedimiento del `criterios-contables.md` del cliente y
 ejecutarlo.** Reusa piezas de otros procesos (comisión = compras; retención recibida; estado
 artificial = statement), pero la coreografía la manda el criterio.
 
-> **Modelo:** corré en **Sonnet**.
+> **Modelo:** corre en **Sonnet**.
 
 ## Paso 0 — Base, entidad y procesador
 
-Declará la base (instancia) y la entidad. Esto aplica **solo a las entidades que venden a consumidor
+Declara la base (instancia) y la entidad. Esto aplica **solo a las entidades que venden a consumidor
 final**; en un grupo suele haber entidades que no operan comercialmente y por lo tanto no tienen
-procesadores. Cuáles son lo dice la wiki. Identificá el **procesador** y su familia:
+procesadores. Cuáles son lo dice la wiki. Identifica el **procesador** y su familia:
 - **Familia A — tarjetas de crédito (CON retención):** Datafast, Pagos YA, Bendo.
 - **Familia B — pasarelas no bancarias (SIN retención):** Payphone, De Una, Rappi.
 
 > **⚠️ Solo clientes en Odoo.** Hay clientes en **SAE** y en **Firesoft**, sin conexión directa.
 > Qué sistema usa la entidad lo dice su `sistemas.md`
 > (`wiki_leer("clientes/<base>/<entidad>/sistemas.md")`). Si la entidad no está en Odoo →
-> **frená y avisá**.
+> **frena y avisa**.
 
-## Paso 1 — Leé SOLO la sección del criterio  *(OBLIGATORIO, no leas el archivo entero)*
+## Paso 1 — Lee SOLO la sección del criterio  *(OBLIGATORIO, no leas el archivo entero)*
 
 `wiki_criterios_seccion(<base>, <entidad>, "Procedimiento de registro para el agente — Tarjetas
 y pasarelas")` — en un grupo la sección suele estar escrita una sola vez y valer para todas las
-entidades comerciales; si la entidad no la tiene, buscala en la entidad de referencia del grupo que
+entidades comerciales; si la entidad no la tiene, búscala en la entidad de referencia del grupo que
 indique la wiki. Trae la **tabla de diarios por entidad
 (por `journal_id`)**, la **tabla por procesador** (comisión / retención) y las **cuentas**. Si
-necesitás el contexto de cómo se cierran las tarjetas, traé por `wiki_seccion` las secciones «Flujo
+necesitas el contexto de cómo se cierran las tarjetas, trae por `wiki_seccion` las secciones «Flujo
 de conciliación de tarjetas en Odoo» o «Payphone y otras pasarelas no bancarias» — no cargues el
 criterio completo.
 
-> **Si el título exacto no devuelve nada:** ubicá el título real con
+> **Si el título exacto no devuelve nada:** ubica el título real con
 > `wiki_buscar("Procedimiento de registro para el agente", "clientes/<base>")` — devuelve cada
-> título con su archivo y línea, es el índice de las secciones del agente — y repetí la llamada
-> con ese título **tal cual**. Si ni así existe la sección para tu caso, **frená y avisá: nunca
+> título con su archivo y línea, es el índice de las secciones del agente — y repite la llamada
+> con ese título **tal cual**. Si ni así existe la sección para tu caso, **frena y avisa: nunca
 > inventes el procedimiento ni sigas sin él.**
 >
 > **Si la sección es un puntero:** la sección de tu entidad puede ser corta, traer **solo sus datos**
-> (qué procesadores tiene y con qué ids) y rematar en «Seguí el procedimiento de referencia en
-> `../<otra entidad>/criterios-contables.md` → «<título>»». Ahí leé **las dos**: los procesadores y
+> (qué procesadores tiene y con qué ids) y rematar en una línea que manda a seguir el
+> procedimiento de referencia en `../<otra entidad>/criterios-contables.md` → «<título>». Ahí lee
+> **las dos**: los procesadores y
 > los ids salen de tu entidad, el paso a paso de la de referencia. **Ojo:** no todas las entidades
 > tienen los mismos procesadores — si tu sección no lista uno, esa entidad **no lo opera**, aunque la
 > de referencia sí lo explique.
 
-## Paso 2 — Ejecutá el ciclo del criterio
+## Paso 2 — Ejecuta el ciclo del criterio
 
 **Familia A (tarjetas):** por cada liquidación de lote →
 1. **Comisión:** factura del procesador por **compras sin OC**, a la **cuenta de comisiones que
@@ -74,7 +75,7 @@ criterio completo.
 **Familia B (pasarelas):** factura de comisión (compras sin OC a la cuenta de comisiones) + estado de cuenta del retiro
 (líneas de statement en el diario de la pasarela). **Sin retención.**
 
-**Control cruzado (siempre):** validá el Excel de lotes del procesador contra Odoo. Lo que **no cuadra**
+**Control cruzado (siempre):** valida el Excel de lotes del procesador contra Odoo. Lo que **no cuadra**
 queda "por conciliar" para un humano.
 
 ## Chatter de Odoo — NOTA es NOTA y MENSAJE es MENSAJE
@@ -85,22 +86,22 @@ queda "por conciliar" para un humano.
   `subtype_xmlid='mail.mt_note'` (**nota interna**, no sale del equipo).
 - Pidieron mandar, escribirle al cliente, que le llegue → `subtype_xmlid='mail.mt_comment'` con
   `autorizacion` = la frase literal con la que lo pidieron (**mensaje**, sale por correo).
-- **Si no lo dijeron → nota, y preguntá.** Una nota de más no rompe nada; un mensaje de más lo lee el
+- **Si no lo dijeron → nota, y pregunta.** Una nota de más no rompe nada; un mensaje de más lo lee el
   cliente y no se deshace.
-- Antes de escribir en una tarea de cliente, mirá los seguidores: si el cliente es seguidor,
+- Antes de escribir en una tarea de cliente, mira los seguidores: si el cliente es seguidor,
   cualquier mensaje le llega.
-- Después de publicar, decile a quien pidió el trabajo **qué se publicó y a quién le llegó**,
+- Después de publicar, dile a quien pidió el trabajo **qué se publicó y a quién le llegó**,
   tomándolo de `mensaje`, `notifica` y `notificados` de la respuesta. No vale un «listo».
 
 ## Reglas duras (no negociables)
 
 - **Primero la wiki**, y solo la **sección exacta**.
-- **Dirigí por `journal_id`, no por el código** (los `BNK` se repiten entre compañías).
+- **Dirige por `journal_id`, no por el código** (los `BNK` se repiten entre compañías).
 - **Cuentas por código→id** resueltas por compañía con `odoo_leer_plan_cuentas` (los códigos los da
   el criterio; los ids cambian por compañía);
   y `tax_id` **específico** del criterio, no auto-match.
 - **Familia A lleva retención recibida; familia B no.** No inventes retenciones donde no van.
-- **No fuerces** lo que no cuadra; si el control cruzado (pasarela vs Odoo) no da, **frená y reportá**.
+- **No fuerces** lo que no cuadra; si el control cruzado (pasarela vs Odoo) no da, **frena y reporta**.
 - **Base correcta** o no registres.
 
 ## Tools disponibles
@@ -112,8 +113,8 @@ queda "por conciliar" para un humano.
   (`odoo_crear` + `.line`), registrada.
 - **Estado artificial / conciliación:** `odoo_crear` (`account.bank.statement.line` y
   `account.bank.statement`), `odoo_consultar` (validar cuadre, `account.reconcile.model`).
-- **Excel de lotes:** leelo y reprocesalo (skill de Excel o código) para el estado artificial y el
+- **Excel de lotes:** léelo y reprocésalo (skill de Excel o código) para el estado artificial y el
   control cruzado.
 
-> El criterio es el guion; vos lo ejecutás. La garantía de este proceso es el **control cruzado** (Excel
+> El criterio es el guion; tú lo ejecutas. La garantía de este proceso es el **control cruzado** (Excel
 > de lotes vs Odoo) + el **estado artificial que suma cero**: si no cuadra, no está bien.

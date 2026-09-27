@@ -15,11 +15,11 @@ odoo_consultar(instancia, modelo="account.move",
 ```
 
 El diario lo dice el criterio del cliente (en Superávit es `RVNTA` «Retenciones de Clientes»).
-Si la retención ya está, saltala y avisá.
+Si la retención ya está, sáltala y avisa.
 
 ## 2. Ubicar la factura de venta
 
-Del comprobante sale `numDocSustento` (sin guiones). Buscá el `account.move`:
+Del comprobante sale `numDocSustento` (sin guiones). Busca el `account.move`:
 
 ```
 odoo_consultar(instancia, modelo="account.move",
@@ -29,8 +29,8 @@ odoo_consultar(instancia, modelo="account.move",
   entidad="<entidad>")
 ```
 
-Si no aparece → **frená**: o la factura no está registrada, o la retención es de otra entidad.
-Caso especial (retenciones de banco/tarjeta sin factura): usá la **factura en cero por banco**
+Si no aparece → **frena**: o la factura no está registrada, o la retención es de otra entidad.
+Caso especial (retenciones de banco/tarjeta sin factura): usa la **factura en cero por banco**
 que indique el criterio del cliente.
 
 ## 3. Crear el asistente
@@ -40,7 +40,7 @@ Modelo `l10n_ec.wizard.account.withhold`:
 | Campo | Valor |
 |---|---|
 | `partner_id` | el cliente que retuvo |
-| `journal_id` | id del diario de retenciones de clientes **de esa compañía** (hay uno por compañía; filtrá por `company_id`) |
+| `journal_id` | id del diario de retenciones de clientes **de esa compañía** (hay uno por compañía; filtra por `company_id`) |
 | `date` | **fecha de emisión del comprobante**, no la de hoy |
 | `withhold_type` | `"out_withhold"` (retención de ventas). `"in_withhold"` es emisión de compra |
 | `manual_document_number` | `true` |
@@ -58,7 +58,7 @@ Cada línea (`l10n_ec.wizard.account.withhold.line`):
 | `base` | `baseImponible` del XML |
 | `amount` | `valorRetenido` del XML |
 
-Para resolver `tax_id`, mirá qué impuesto usó una retención anterior del mismo tipo:
+Para resolver `tax_id`, mira qué impuesto usó una retención anterior del mismo tipo:
 
 ```
 odoo_consultar(instancia, modelo="account.move.line",
@@ -66,7 +66,7 @@ odoo_consultar(instancia, modelo="account.move.line",
   campos=["move_id","name","tax_line_id","tax_base_amount","debit"])
 ```
 
-o listalos con `odoo_listar_impuestos_retenciones`. **Verificá que el porcentaje del impuesto
+o lístalos con `odoo_listar_impuestos_retenciones`. **Verifica que el porcentaje del impuesto
 coincida con el `porcentajeRetener` del comprobante** — si el cliente cambió de porcentaje, el
 impuesto es otro.
 
@@ -93,6 +93,6 @@ el dato con el que se sustenta el crédito tributario en un reclamo del SRI.
 
 ## 6. Control de cierre
 
-Releé la factura de venta: el `amount_residual` tiene que haber bajado **exactamente** por el
+Relee la factura de venta: el `amount_residual` tiene que haber bajado **exactamente** por el
 total de la retención, y el `payment_state` pasar a `partial` (o `paid` si ya estaba cobrada la
 diferencia). Si no bajó, la conciliación no se hizo y hay que revisar antes de seguir.

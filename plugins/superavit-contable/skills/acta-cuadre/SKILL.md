@@ -3,8 +3,8 @@ name: acta-cuadre
 description: >
   Operador del Acta de Cuadre Mensual de Superávit para los asistentes de IA del equipo (los
   responsables de cliente). Pide el acta al servidor odoo-mcp, interpreta los
-  bloqueos del preliminar, guía las correcciones en Odoo, sube los insumos por el endpoint con el
-  token del usuario, gestiona las salvedades (hasta USD 500,00 las aprueba el supervisor; por
+  bloqueos del preliminar, guía las correcciones en Odoo, sube los insumos por un enlace de un
+  solo uso, gestiona las salvedades (hasta USD 500,00 las aprueba el supervisor; por
   encima, solo Irwin) y cierra el ciclo hasta el acta EN FIRME con folio. Activar SIEMPRE que el
   usuario diga "emite el acta", "pide el acta de cuadre", "el acta de tal cliente", "por qué no
   sale en firme", "carga este insumo", "sube la sábana del rol / la planilla del IESS / el F104
@@ -62,17 +62,40 @@ Cada línea de `bloqueos` cae en uno de estos casos:
 2. **Insumo faltante**: ver Paso 3.
 3. **Período sin bloquear**: el usuario debe poner las fechas de bloqueo al corte en Odoo.
    Sin candado no hay firme.
-4. **SIN MAPA** (cuenta nueva con saldo): el mapa vive en la wiki y lo mantiene Irwin —
-   avísale con el código de cuenta y el saldo para que lo agregue. No intentes editarlo tú.
+4. **SIN MAPA** (cuenta nueva con saldo): el mapa vive en la wiki y lo mantiene Cowork; si falta
+   el mapa o una cuenta nueva no está mapeada, se reporta en la tarea, con el código de cuenta y
+   el saldo, y Cowork lo actualiza. No intentes editarlo tú.
 5. **Hallazgo no corregible en el mes**: ver Paso 4 (salvedad).
 
-## Paso 3 — Carga los insumos (endpoint, nunca base64 por el chat)
+## Paso 3 — Carga los insumos (enlace de un solo uso, nunca base64 por el chat)
 
 Los respaldos (sábana del rol, planillas IESS, F104/F103, tablas de préstamo, valuación de
-inventario, detalle de activos, respaldos documentales) se suben así:
+inventario, detalle de activos, respaldos documentales) se suben **uno por archivo**, así:
 
-1. **Subir el archivo por el endpoint HTTP** del servidor con el **token `sodoo_` del usuario**,
-   con un curl que corra en la máquina del usuario:
+1. **`preparar_subida_insumo(instancia, fecha_corte, tipo, entidad, clave)`** con el tipo y la
+   clave que pide la fila del acta (la nota del tramo lo dice textual, p. ej. tipo `documento`,
+   clave `activos`). Devuelve una `url` y un `ticket`.
+2. **Dale al usuario el enlace** (`url`) para que lo abra en su navegador y elija el archivo.
+   Dile que vence en 30 minutos, que sirve una sola vez y que el máximo es 10 MB. El enlace está
+   atado a ese insumo: para otro archivo, pide otro enlace.
+3. Cuando confirme que lo subió, **`cargar_insumo(instancia, fecha_corte, tipo, ticket=…)`** con
+   el `ticket` del paso 1. Si el ticket venció o no tiene nada subido, el servidor lo dice: pide
+   uno nuevo.
+4. El servidor **parsea el archivo y calcula los totales él mismo** — jamás le pases totales
+   declarados. Si rechaza el archivo (corrupto), consigue el export de nuevo; un insumo subido
+   por error se anula con `anular_insumo`, y `listar_insumos` muestra lo cargado en el corte.
+
+**Nunca** transcribas un archivo por tu contexto en base64: se corrompe y el servidor lo bota.
+
+### Alternativa solo para quien todavía tiene el conector de Odoo instalado por script
+
+Quien entra por el conector nativo (el que se agrega en Claude pegando la dirección del servidor
+e iniciando sesión con Microsoft) **no tiene token `sodoo_`** y usa siempre el enlace de arriba.
+Solo si el conector del usuario se instaló por script existe la vía anterior, que se retira
+cuando todo el equipo esté en el conector nativo:
+
+1. Subir el archivo por el endpoint HTTP del servidor con el **token `sodoo_` del usuario**, con
+   un curl que corra en su máquina:
 
    ```
    curl -H "Authorization: Bearer <token>" --data-binary @<archivo> \
@@ -81,26 +104,14 @@ inventario, detalle de activos, respaldos documentales) se suben así:
 
    **La URL del endpoint no viaja en esta skill: está en la wiki.** Tráela con
    `wiki_buscar("insumos/upload", "superavit")` — vive en
-   `superavit/procesos/actas-de-control.md` y la búsqueda devuelve hasta el curl completo de
-   ejemplo. Con traerla **una vez por sesión** alcanza.
+   `superavit/procesos/actas-de-control.md`. Máx. 10 MB. Devuelve un `upload_id` de un solo uso
+   que expira a las 48 h.
+2. `cargar_insumo(upload_id, ...)` con el tipo y la clave de la fila del acta.
 
-   Máx. 10 MB. Devuelve un `upload_id` de un solo uso que expira a las 48 h.
-
-   **Dónde está el token del usuario** — esto es lo que más traba al equipo, no lo adivines ni
-   lo pidas por chat sin decirle dónde buscar: está en la configuración de su conector de
-   Claude, `%APPDATA%\Claude\claude_desktop_config.json`, entrada `odoo-superavit`. Es el mismo
-   token que autentica su conector. **El servidor no puede mostrarlo**: solo guarda su huella
-   SHA-256. Si no lo encuentra o lo perdió, llama a **`mi_token()`** para ver el estado, y a
-   **`mi_token(rotar=True)`** para emitir uno nuevo — se muestra una sola vez, invalida el
-   anterior, y si su conector se instaló por script hay que reinstalarlo con el token nuevo.
-   **Avísale eso ANTES de rotar**, o le dejas el conector muerto.
-2. **`cargar_insumo(upload_id, ...)`** con el tipo y la clave que pide la fila del acta (la nota
-   del tramo lo dice textual, p. ej. tipo `documento`, clave `activos`).
-3. El servidor **parsea el archivo y calcula los totales él mismo** — jamás le pases totales
-   declarados. Si rechaza el archivo (corrupto), consigue el export de nuevo; un insumo subido
-   por error se anula con `anular_insumo`.
-
-**Nunca** transcribas un archivo por tu contexto en base64: se corrompe y el servidor lo bota.
+El token está en `%APPDATA%\Claude\claude_desktop_config.json`, entrada `odoo-superavit`. **El
+servidor no puede mostrarlo**: solo guarda su huella SHA-256. `mi_token()` muestra el estado y
+`mi_token(rotar=True)` emite uno nuevo, que invalida el anterior y obliga a reinstalar el conector
+con el token nuevo. **Avísale eso ANTES de rotar**, o le dejas el conector muerto.
 
 ## Paso 4 — Salvedades
 
@@ -139,7 +150,7 @@ Vuelve a emitir el acta después de cada tanda de correcciones o insumos, hasta 
 
 Mismo flujo, con una diferencia: como SAE no tiene conexión, la fuente contable del acta es el
 **paquete de Anexos en Excel** (salida de la Fase 2, skill `anexos-sae`). Se sube como insumo
-`paquete_anexos` por el mismo endpoint; el servidor lo recalcula (no se cree las fórmulas del
+`paquete_anexos` por el mismo enlace de un solo uso; el servidor lo recalcula (no se cree las fórmulas del
 Excel) y exige un anexo por cada cuenta del Balance con saldo. Los demás insumos externos
 (F104/F103, extractos, rol, IESS) se cargan igual que en Odoo. El mapa de estos clientes vive
 en su `revision-eef-sae.md`.

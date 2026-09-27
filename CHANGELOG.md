@@ -1,5 +1,24 @@
 # Cambios
 
+## 1.8.0 — 2026-09-27 — insumos por enlace de un solo uso y tuteo en las skills de agentes
+
+- **`acta-cuadre`, Paso 3 — subida de insumos.** El camino es el enlace de un solo uso:
+  `preparar_subida_insumo` → el usuario abre el enlace y elige el archivo → `cargar_insumo` con el
+  `ticket`. Un enlace por archivo, vence en 30 minutos, máximo 10 MB. El curl con token `sodoo_`
+  queda como alternativa **solo** para quien todavía tiene el conector de Odoo instalado por
+  script: quien entra por el conector nativo no tiene ese token. La descripción de la skill
+  también lo dice.
+- **`acta-cuadre`, Paso 2 — mapa de cuadre.** Lo mantiene Cowork: si falta el mapa o una cuenta
+  nueva no está mapeada, se reporta en la tarea y Cowork lo actualiza.
+- **Tuteo en las seis skills de agentes**: `agente-compras`, `agente-conciliacion-bancaria`,
+  `agente-impuestos-odoo`, `agente-nomina`, `agente-retenciones` (con sus dos referencias) y
+  `agente-tarjetas-pasarelas`. Donde citaban la línea con la que la wiki remite a la entidad de
+  referencia, que en la wiki está escrita en voseo, ahora la describen en vez de citarla. Ningún
+  procedimiento cambia.
+
+Siguen en voseo `anexos-sae`, `analisis-anexos-sae`, `revision-eef-odoo`, `revision-eef-sae` y
+`wikisuperavit`.
+
 ## 1.7.0 — 2026-09-24 — `acta-cuadre` al día con el modelo del 1 de octubre
 
 Solo cambia la skill `acta-cuadre`. Tiene que estar instalada antes del jueves 1-oct a las 09:00,

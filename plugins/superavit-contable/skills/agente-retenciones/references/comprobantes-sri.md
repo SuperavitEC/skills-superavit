@@ -44,7 +44,7 @@ comprobante **dentro de un CDATA** en `<comprobante>`.
    lo que tengas en `window`).
 2. `navigate` a
    `https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl`.
-3. `javascript_tool` con el script de abajo. **Devolvé solo el resumen parseado, nunca el XML
+3. `javascript_tool` con el script de abajo. **Devuelve solo el resumen parseado, nunca el XML
    completo ni base64** — el canal bloquea base64 y el XML crudo quema contexto para nada.
 4. `tabs_close_mcp` al terminar.
 
@@ -81,8 +81,8 @@ AUTORIZADO # 001-001-000000033 # EMPRESA XYZ SA # 04/08/2026 # 001001000002193 #
 
 | Campo | Qué es |
 |---|---|
-| `estado` | Debe ser `AUTORIZADO`. Cualquier otra cosa → **frená**, no cargues nada. |
-| `numDocSustento` | La **factura de venta** sobre la que aplica, sin guiones (`001001000002193` = `001-001-000002193`). Con eso ubicás el `account.move` en Odoo. |
+| `estado` | Debe ser `AUTORIZADO`. Cualquier otra cosa → **frena**, no cargues nada. |
+| `numDocSustento` | La **factura de venta** sobre la que aplica, sin guiones (`001001000002193` = `001-001-000002193`). Con eso ubicas el `account.move` en Odoo. |
 | `codigo` | `1` = Renta · `2` = IVA · `6` = ISD. |
 | `codigoRetencion` | El código del SRI (`303A`, `3440`, `2`…). **No lo asumas: varía por cliente.** |
 | `baseImponible` / `porcentajeRetener` / `valorRetenido` | Los tres van tal cual al asistente de Odoo. |
@@ -95,5 +95,5 @@ AUTORIZADO # 001-001-000000033 # EMPRESA XYZ SA # 04/08/2026 # 001001000002193 #
 - El canal del navegador **bloquea base64**, así que no se puede traer el XML para adjuntarlo a
   Odoo por esta vía. El respaldo formal en Odoo es el campo **número de autorización**; si además
   se quiere el XML archivado, lo baja el usuario del portal del SRI.
-- Si la pestaña navega a otro dominio, `window.__…` se pierde. Guardá y parseá **en la misma
+- Si la pestaña navega a otro dominio, `window.__…` se pierde. Guarda y parsea **en la misma
   llamada** cuando puedas.

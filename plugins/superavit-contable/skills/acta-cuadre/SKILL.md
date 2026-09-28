@@ -5,12 +5,14 @@ description: >
   responsables de cliente). Pide el acta al servidor odoo-mcp, interpreta los
   bloqueos del preliminar, guía las correcciones en Odoo, sube los insumos por un enlace de un
   solo uso, gestiona las salvedades (hasta USD 500,00 las aprueba el supervisor; por
-  encima, solo Irwin) y cierra el ciclo hasta el acta EN FIRME con folio. Activar SIEMPRE que el
-  usuario diga "emite el acta", "pide el acta de cuadre", "el acta de tal cliente", "por qué no
-  sale en firme", "carga este insumo", "sube la sábana del rol / la planilla del IESS / el F104
-  para el acta", mencione las tareas "Revisión interna de EEFF" o "Entrega del mes" (antes "EEFF
-  Preliminares" y "Emisión de Estados Financieros"), o esté cerrando el mes de un cliente y
-  necesite el comprobante del cierre — aunque no nombre la skill.
+  encima, solo Irwin), cierra el ciclo hasta el acta EN FIRME con folio y revisa la vista previa
+  del paquete de cierre que recibe el cliente. Activar SIEMPRE que el usuario diga "emite el
+  acta", "pide el acta de cuadre", "el acta de tal cliente", "por qué no sale en firme", "carga
+  este insumo", "sube la sábana del rol / la planilla del IESS / el F104 para el acta", "el
+  paquete de cierre", "el informe de cierre", "qué va a recibir el cliente", mencione las tareas
+  "Revisión interna de EEFF" o "Entrega del mes" (antes "EEFF Preliminares" y "Emisión de Estados
+  Financieros"), o esté cerrando el mes de un cliente y necesite el comprobante del cierre —
+  aunque no nombre la skill.
 ---
 
 # Acta de Cuadre Mensual — operador para el equipo
@@ -60,8 +62,10 @@ Cada línea de `bloqueos` cae en uno de estos casos:
    tú si tienes las tools de escritura y el usuario te lo pide. Detalle de cada tramo: campo
    `tramos` del resumen (estado, nota, cuentas, diferencia).
 2. **Insumo faltante**: ver Paso 3.
-3. **Período sin bloquear**: el usuario debe poner las fechas de bloqueo al corte en Odoo.
-   Sin candado no hay firme.
+3. **Período sin bloquear**: **el bloqueo del período lo pone solo Irwin.** No lo pongas tú ni
+   se lo propongas al responsable como tarea suya. Pídele al responsable que se lo solicite a
+   Irwin en la tarea «Revisión interna de EEFF», con una nota que lo mencione y diga la fecha de
+   corte. Sin candado no hay firme.
 4. **SIN MAPA** (cuenta nueva con saldo): el mapa vive en la wiki y lo mantiene Cowork; si falta
    el mapa o una cuenta nueva no está mapeada, se reporta en la tarea, con el código de cuenta y
    el saldo, y Cowork lo actualiza. No intentes editarlo tú.
@@ -115,36 +119,85 @@ con el token nuevo. **Avísale eso ANTES de rotar**, o le dejas el conector muer
 
 ## Paso 4 — Salvedades
 
-Lo que no se puede corregir en el mes necesita **salvedad aprobada ANTES del cierre**, con tres
+Lo que no se puede corregir en el mes necesita **salvedad aprobada ANTES del cierre**, con cuatro
 piezas: **código determinista exacto** que imprime el acta (formato
-`INSTANCIA-ENTIDAD-AAAA-MM-MÓDULO-monto`), **causa** y **plan de corrección**. Quién la aprueba
-depende del monto que imprimió el acta:
+`INSTANCIA-ENTIDAD-AAAA-MM-MÓDULO-monto`), **causa**, **plan de corrección** y **texto para el
+cliente**. Quién la aprueba depende del monto que imprimió el acta:
 
 - **Hasta USD 500,00, el supervisor del cliente**, con su propio usuario:
-  `aprobar_salvedad(codigo_hallazgo, motivo)`, y el acta imprime quién aprobó. El servidor se lo
-  permite a cualquiera que tenga acceso a la base del cliente; tú la apruebas solo si quien te lo
-  pide es el supervisor.
+  `aprobar_salvedad(codigo_hallazgo, motivo, texto_cliente=…)`, y el acta imprime quién aprobó.
+  El servidor se lo permite a cualquiera que tenga acceso a la base del cliente; tú la apruebas
+  solo si quien te lo pide es el supervisor.
 - **Por encima de USD 500,00, solo Irwin.** Tu clave no puede aprobarla: el servidor la rechaza,
-  no lo intentes. Prepara el pedido para que el usuario se lo mande (WhatsApp o el canal que use).
+  no lo intentes. Prepara el pedido para que el usuario se lo mande (WhatsApp o el canal que use),
+  con el texto para el cliente ya redactado.
+
+**El texto para el cliente** es lo que lee el cliente en el informe de cierre, en la columna «qué
+la originó y cómo se cierra». La causa técnica (`motivo`) se queda en el acta; esto es otra cosa:
+
+- **Dos líneas como máximo**, en lenguaje de la Compañía.
+- **Sin códigos de cuenta ni nombres internos**: nada de Odoo, SAE, acta, tramo, mapa, lector ni
+  insumo. Nombra el rubro (por ejemplo «Bancos y caja»), no la cuenta.
+- Ejemplo: «Diferencia en la conciliación de Bancos y caja por un depósito en tránsito; se
+  regulariza en el cierre del mes siguiente.»
+- **Sin él, el paquete de cierre no sale**: queda como pendiente de la firma. Para una salvedad
+  que ya estaba aprobada sin texto, el responsable lo completa con
+  `texto_salvedad(codigo_hallazgo, texto_cliente)`, que no cambia la aprobación.
+- El servidor rechaza un texto largo, con códigos de cuenta o con nombres internos, y dice qué
+  corregir.
 
 `listar_salvedades` muestra las vigentes. Ojo: la salvedad queda amarrada al monto aprobado, más
 o menos la tolerancia del tramo. Si el descuadre se sale de esa tolerancia, cae y el acta vuelve
 a preliminar.
 
-## Paso 5 — Repite hasta el firme o hasta el día de la entrega, y cierra el ciclo
+## Paso 5 — Lo que falta del cliente, por escrito y a tiempo
+
+Cuando marques la espera del cliente en la tarea del mes, llena también el campo **«Información
+pendiente del cliente»**. Es lo que imprime el informe de cierre en «Información no recibida» y
+lo único que permite entregar **con limitación**: **sin ese campo no hay limitación**, y lo que
+falta pasa a ser pendiente de la firma, así que el paquete no sale.
+
+Una línea numerada por cada cosa pedida, con lo que se pidió, cuándo, por qué canal y qué efecto
+tiene:
+
+```
+1. <qué se pidió> (cuenta <código>). Pedido el <dd-mm-aaaa> y el <dd-mm-aaaa> por correo. Efecto: <qué saldo no se pudo cuadrar>.
+```
+
+- **Canal:** correo, WhatsApp, teléfono, Teams o el canal del proyecto.
+- **Fechas:** en formato dd-mm-aaaa, todas las veces que se pidió.
+- **El código de cuenta entre paréntesis es para el acta**: con él, el tramo sale «pendiente del
+  cliente» y no como hallazgo. El informe lo quita al imprimir.
+- **Lo que no se pidió no va.** Tampoco lo que depende de la firma, como un respaldo que el
+  equipo no cargó o un cuadre que no se hizo.
+
+## Paso 6 — Repite hasta el firme o hasta el día de la entrega, revisa el paquete y cierra el ciclo
 
 Vuelve a emitir el acta después de cada tanda de correcciones o insumos, hasta que salga
 **EN FIRME** o llegue el día comprometido de la entrega, lo que pase primero. Entonces:
 
-1. Archiva el **PDF** en los Documentos del cliente (carpeta del mes).
-2. Registra en el chatter de la tarea **«Revisión interna de EEFF»** (antes «EEFF Preliminares»)
+1. **Pide la vista previa del paquete de cierre**, el único documento que recibe el cliente
+   (informe de cierre, resumen gerencial y estados financieros):
+   `paquete_cierre(instancia, fecha_corte, entidad)`. Guárdalo como archivo local para que el
+   usuario lo revise. Viene marcado «VISTA PREVIA — NO ENVIAR AL CLIENTE».
+   - `estado` es el estado de la entrega: EN FIRME, CON SALVEDADES o CON LIMITACIÓN. Ese es el que
+     va en la tarea; no lo elijas tú.
+   - Si `sale` es `false`, **el paquete no sale**. En `bloqueos_de_la_firma` está lo pendiente de
+     la firma: un hallazgo sin salvedad, un respaldo sin cargar, el período sin bloquear, una
+     salvedad sin texto para el cliente. Eso se corrige; nunca se convierte en limitación ni en
+     salvedad para que el paquete salga.
+   - Revisa con el usuario que las cifras y los textos tengan sentido para el cliente.
+   - El envío al cliente todavía no lo hace el asistente. No uses `subir=True`.
+2. Archiva el **PDF del acta** en los Documentos del cliente (carpeta del mes).
+3. Registra en el chatter de la tarea **«Revisión interna de EEFF»** (antes «EEFF Preliminares»)
    el **sha256** del acta y los hallazgos abiertos con su plan de corrección.
-3. En la tarea **«Entrega del mes»** (antes «Emisión Estados Financieros») elige el **Estado de
-   la entrega**: En firme, Con salvedades o Con limitación, y registra en el chatter el **folio**
-   (formato ACTA-cliente-año-mes-n) o, si quedó en preliminar por limitación, su **sha256**.
-4. **La entrega sale el día comprometido, falte lo que falte del cliente.** Lo que depende del
-   cliente va en «Información pendiente del cliente»; lo que depende de la firma se corrige, no
-   se salva ni se limita. Detalle en la wiki: `superavit/procesos/entrega-en-fecha.md`.
+4. En la tarea **«Entrega del mes»** (antes «Emisión Estados Financieros») pon el **Estado de la
+   entrega** que dio el paquete. En el chatter registra el **folio** del acta (formato
+   ACTA-cliente-año-mes-n) o, si quedó en preliminar por limitación, su **sha256**.
+5. **La entrega sale el día comprometido, falte lo que falte del cliente.** Lo que depende del
+   cliente va en «Información pendiente del cliente» (Paso 5). Lo que depende de la firma se
+   corrige: no se salva ni se limita, y mientras esté pendiente, el paquete no sale. Detalle en
+   la wiki: `superavit/procesos/entrega-en-fecha.md` y `superavit/procesos/informe-de-cierre.md`.
 
 ## Clientes que llevan contabilidad en SAE
 
@@ -181,10 +234,13 @@ pendiente de documentar): si te piden el acta de uno de esos, frena y consulta c
 - **No declaras totales a mano** ni "ayudas a cuadrar" alterando datos para que pase un chequeo.
   Un descuadre real se corrige en la fuente o lleva salvedad — nunca se maquilla.
 - **Salvedades:** hasta USD 500,00 las aprueba el supervisor; por encima, solo Irwin. Se piden
-  antes del cierre, con código, causa y plan.
+  antes del cierre, con código, causa, plan y texto para el cliente.
 - **La entrega sale en fecha y en el estado que corresponda** (en firme, con salvedades o con
   limitación). Nunca se deja abierta porque falte el cliente, y nunca se pide salvedad ni
-  limitación por algo que depende de la firma.
+  limitación por algo que depende de la firma: **lo que es de la firma no es limitación, y el
+  paquete no sale hasta corregirlo.**
+- **Sin «Información pendiente del cliente» no hay limitación.**
+- **El bloqueo del período lo pone Irwin.** El responsable se lo pide en la tarea.
 - Si algo del proceso falla o no se entiende (tool que no responde, bloqueo confuso, insumo
   rechazado sin razón clara), **anótalo y que el usuario se lo reporte a Irwin** — ese feedback
   mejora el sistema.

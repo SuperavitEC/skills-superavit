@@ -1,5 +1,23 @@
 # Cambios
 
+## 1.9.0 — 2026-09-28 — `acta-cuadre` con el paquete de cierre
+
+Solo cambia la skill `acta-cuadre`. El equipo la usa desde el cierre de septiembre.
+
+- **Vista previa del paquete de cierre (Paso 6).** Antes de la entrega, `paquete_cierre` devuelve
+  el único documento que recibe el cliente: informe de cierre, resumen gerencial y estados
+  financieros. El estado de la entrega es el que dice el paquete; si `sale` es `false`, lo
+  pendiente es de la firma y se corrige. El envío al cliente todavía no lo hace el asistente.
+- **«Información pendiente del cliente» (Paso 5).** Al marcar la espera se llena el campo con qué
+  se pidió, cuándo y por qué canal, una línea numerada por pedido. Sin ese campo no hay
+  limitación.
+- **Texto de la salvedad para el cliente (Paso 4).** Dos líneas, sin códigos de cuenta ni nombres
+  internos. Va en `aprobar_salvedad(..., texto_cliente=…)`; para las ya aprobadas, en
+  `texto_salvedad`. Sin él, el paquete no sale.
+- **Lo que es de la firma no es limitación**, y el paquete no sale hasta corregirlo.
+- **El bloqueo del período lo pone Irwin.** El asistente no lo pone ni lo propone como acción del
+  responsable: le pide al responsable que se lo solicite a Irwin en la tarea.
+
 ## 1.8.0 — 2026-09-27 — insumos por enlace de un solo uso y tuteo en las skills de agentes
 
 - **`acta-cuadre`, Paso 3 — subida de insumos.** El camino es el enlace de un solo uso:

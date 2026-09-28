@@ -1,5 +1,12 @@
 # Cambios
 
+## 1.9.1 — 2026-09-28 — el bloqueo del período lo pone el responsable
+
+- **`acta-cuadre`, corrección de la 1.9.0.** El período lo bloquea el propio responsable en Odoo,
+  como siempre (Irwin, 28-09: «ellos mismos pueden cerrar el mes»). La 1.9.0 decía que lo ponía
+  Irwin y que el responsable debía pedírselo: eso quedó sin efecto. Lo demás de la 1.9.0 sigue
+  igual.
+
 ## 1.9.0 — 2026-09-28 — `acta-cuadre` con el paquete de cierre
 
 Solo cambia la skill `acta-cuadre`. El equipo la usa desde el cierre de septiembre.
@@ -15,8 +22,7 @@ Solo cambia la skill `acta-cuadre`. El equipo la usa desde el cierre de septiemb
   internos. Va en `aprobar_salvedad(..., texto_cliente=…)`; para las ya aprobadas, en
   `texto_salvedad`. Sin él, el paquete no sale.
 - **Lo que es de la firma no es limitación**, y el paquete no sale hasta corregirlo.
-- **El bloqueo del período lo pone Irwin.** El asistente no lo pone ni lo propone como acción del
-  responsable: le pide al responsable que se lo solicite a Irwin en la tarea.
+- ~~El bloqueo del período lo pone Irwin~~: corregido en la 1.9.1.
 
 ## 1.8.0 — 2026-09-27 — insumos por enlace de un solo uso y tuteo en las skills de agentes
 

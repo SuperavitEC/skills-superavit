@@ -62,10 +62,8 @@ Cada línea de `bloqueos` cae en uno de estos casos:
    tú si tienes las tools de escritura y el usuario te lo pide. Detalle de cada tramo: campo
    `tramos` del resumen (estado, nota, cuentas, diferencia).
 2. **Insumo faltante**: ver Paso 3.
-3. **Período sin bloquear**: **el bloqueo del período lo pone solo Irwin.** No lo pongas tú ni
-   se lo propongas al responsable como tarea suya. Pídele al responsable que se lo solicite a
-   Irwin en la tarea «Revisión interna de EEFF», con una nota que lo mencione y diga la fecha de
-   corte. Sin candado no hay firme.
+3. **Período sin bloquear**: el responsable pone la fecha de bloqueo al corte en Odoo
+   (Contabilidad › Configuración › Ajustes › Fechas de bloqueo). Sin candado no hay firme.
 4. **SIN MAPA** (cuenta nueva con saldo): el mapa vive en la wiki y lo mantiene Cowork; si falta
    el mapa o una cuenta nueva no está mapeada, se reporta en la tarea, con el código de cuenta y
    el saldo, y Cowork lo actualiza. No intentes editarlo tú.
@@ -240,7 +238,6 @@ pendiente de documentar): si te piden el acta de uno de esos, frena y consulta c
   limitación por algo que depende de la firma: **lo que es de la firma no es limitación, y el
   paquete no sale hasta corregirlo.**
 - **Sin «Información pendiente del cliente» no hay limitación.**
-- **El bloqueo del período lo pone Irwin.** El responsable se lo pide en la tarea.
 - Si algo del proceso falla o no se entiende (tool que no responde, bloqueo confuso, insumo
   rechazado sin razón clara), **anótalo y que el usuario se lo reporte a Irwin** — ese feedback
   mejora el sistema.

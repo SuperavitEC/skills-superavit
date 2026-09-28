@@ -1,5 +1,12 @@
 # Cambios
 
+## 1.9.3 — 2026-09-28 — la subida del paquete, cuando esté encendida
+
+- **`acta-cuadre`, Paso 6.** Si la respuesta de `paquete_cierre` dice que la subida está
+  encendida y el supervisor lo pide, `subir=True` manda el paquete a firma. Queda firmado en la
+  tarea «Entrega del mes» y en la carpeta del mes del cliente. Si está apagada, no se usa. El
+  correo al cliente sigue como hoy.
+
 ## 1.9.2 — 2026-09-28 — dónde va la información pendiente del cliente
 
 - **`acta-cuadre`, Paso 5.** El campo «Información pendiente del cliente» se llena en la tarea

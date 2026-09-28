@@ -186,7 +186,14 @@ Vuelve a emitir el acta después de cada tanda de correcciones o insumos, hasta 
      salvedad sin texto para el cliente. Eso se corrige; nunca se convierte en limitación ni en
      salvedad para que el paquete salga.
    - Revisa con el usuario que las cifras y los textos tengan sentido para el cliente.
-   - El envío al cliente todavía no lo hace el asistente. No uses `subir=True`.
+   - **La subida del paquete.** Mira el campo `subida` de la respuesta:
+     - Si dice «apagada», no uses `subir=True`.
+     - Si dice «encendida» y **el supervisor** lo pide, usa
+       `paquete_cierre(instancia, fecha_corte, entidad, subir=True)`. El paquete sale sin la marca
+       de vista previa y entra a firma. El firmador lo firma solo, y queda firmado en la tarea
+       «Entrega del mes» y en la carpeta del mes del cliente en Documentos.
+     - Si `sale` es `false`, el servidor no lo sube y dice por qué.
+     - El correo al cliente sigue como hoy: el asistente no lo manda.
 2. Archiva el **PDF del acta** en los Documentos del cliente (carpeta del mes).
 3. Registra en el chatter de la tarea **«Revisión interna de EEFF»** (antes «EEFF Preliminares»)
    el **sha256** del acta y los hallazgos abiertos con su plan de corrección.

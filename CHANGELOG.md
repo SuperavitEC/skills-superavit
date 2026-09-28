@@ -1,5 +1,11 @@
 # Cambios
 
+## 1.9.2 — 2026-09-28 — dónde va la información pendiente del cliente
+
+- **`acta-cuadre`, Paso 5.** El campo «Información pendiente del cliente» se llena en la tarea
+  «Entrega del mes» (en agosto, «Emisión Estados Financieros»), pestaña «Motor de tareas». Es la
+  única tarea donde el campo se ve.
+
 ## 1.9.1 — 2026-09-28 — el bloqueo del período lo pone el responsable
 
 - **`acta-cuadre`, corrección de la 1.9.0.** El período lo bloquea el propio responsable en Odoo,

@@ -150,8 +150,9 @@ a preliminar.
 
 ## Paso 5 — Lo que falta del cliente, por escrito y a tiempo
 
-Cuando marques la espera del cliente en la tarea del mes, llena también el campo **«Información
-pendiente del cliente»**. Es lo que imprime el informe de cierre en «Información no recibida» y
+Cuando marques la espera del cliente, llena también el campo **«Información pendiente del
+cliente»** de la tarea **«Entrega del mes»** (en las tareas de agosto se llama «Emisión Estados
+Financieros»). Está en la pestaña «Motor de tareas», en el bloque «Entrega del mes». Es lo que imprime el informe de cierre en «Información no recibida» y
 lo único que permite entregar **con limitación**: **sin ese campo no hay limitación**, y lo que
 falta pasa a ser pendiente de la firma, así que el paquete no sale.
 

@@ -1,5 +1,17 @@
 # Cambios
 
+## 1.10.0 — 2026-09-28 — la Matriz de respaldos del cierre
+
+- **`acta-cuadre`, Paso 3b (nuevo).** Desde el cierre de septiembre, el lector de respaldos del
+  servidor lee los documentos de terceros del mes y deja la Matriz de respaldos del cierre, con la
+  cita de cada número. El equipo deja los archivos (Documentos del cliente o nota interna en
+  «Revisión interna de EEFF»), lee la nota del lector y marca «Revisé la matriz de respaldos». Una
+  corrección va en «Corrección manual», con motivo y nombre, y el acta la imprime como DECLARADO.
+- **Respaldo si el lector no está:** la IA del responsable arma la matriz siguiendo la misma ficha
+  de la wiki. Incluye los nombres exactos de los campos por tipo, las tres hojas con sus encabezados
+  y la comprobación con `acta_diagnostico`.
+- En septiembre la matriz corre en paralelo: la carga de insumos del Paso 3 sigue igual.
+
 ## 1.9.3 — 2026-09-28 — la subida del paquete, cuando esté encendida
 
 - **`acta-cuadre`, Paso 6.** Si la respuesta de `paquete_cierre` dice que la subida está

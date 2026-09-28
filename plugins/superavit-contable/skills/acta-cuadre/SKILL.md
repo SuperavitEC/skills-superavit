@@ -11,7 +11,8 @@ description: >
   este insumo", "sube la sábana del rol / la planilla del IESS / el F104 para el acta", "el
   paquete de cierre", "el informe de cierre", "qué va a recibir el cliente", mencione las tareas
   "Revisión interna de EEFF" o "Entrega del mes" (antes "EEFF Preliminares" y "Emisión de Estados
-  Financieros"), o esté cerrando el mes de un cliente y necesite el comprobante del cierre —
+  Financieros"), hable de la "matriz de respaldos", la "nota del lector" o la casilla "Revisé la
+  matriz de respaldos", o esté cerrando el mes de un cliente y necesite el comprobante del cierre —
   aunque no nombre la skill.
 ---
 
@@ -114,6 +115,90 @@ El token está en `%APPDATA%\Claude\claude_desktop_config.json`, entrada `odoo-s
 servidor no puede mostrarlo**: solo guarda su huella SHA-256. `mi_token()` muestra el estado y
 `mi_token(rotar=True)` emite uno nuevo, que invalida el anterior y obliga a reinstalar el conector
 con el token nuevo. **Avísale eso ANTES de rotar**, o le dejas el conector muerto.
+
+## Paso 3b — La Matriz de respaldos del cierre (desde el cierre de septiembre de 2026)
+
+Desde el 01-10-2026 los documentos de terceros del mes los lee el **lector de respaldos** del
+servidor y deja todo lo leído en la **Matriz de respaldos del cierre**, un Excel con la cita de
+dónde salió cada número. Nunca la llames «planilla»: en la firma, planilla es la del IESS. La
+ficha completa está en la wiki: `superavit/procesos/lector-de-respaldos.md`. Durante el cierre de
+septiembre la matriz corre **en paralelo**: el Paso 3 sigue igual.
+
+**Lo que hace el equipo, y tú le ayudas:**
+
+1. **Dejar los archivos del mes** apenas se tienen, sin renombrarlos ni elegir tipo:
+   - lo que el cliente ve (formularios del SRI, estados de cuenta, roles, planillas del IESS), en
+     su carpeta de Documentos del cliente, en la subcarpeta del mes;
+   - lo que no es para el cliente (anexos SAE, arqueos, tablas de préstamo), en la tarea
+     **«Revisión interna de EEFF»**, como **nota interna**.
+2. **Leer la nota del lector** en esa tarea: qué leyó, qué falta, qué dudas dejó y qué archivos
+   no usó, con el motivo. Si un archivo está mal (otro mes, otra empresa), se deja el correcto en
+   el mismo lugar y el lector lo toma en la pasada siguiente. No se borra nada.
+3. **Marcar «Revisé la matriz de respaldos»** en la tarea cuando la nota ya no pida nada.
+
+**Si un valor de la matriz está mal** y el documento no lo aclara, el responsable escribe el valor
+correcto en la columna **«Corrección manual»** de la hoja VALORES, con el motivo y su nombre, y
+vuelve a adjuntar la matriz a la tarea. El acta lo imprime como **DECLARADO**. No se toca la
+estructura.
+
+### Si el lector del servidor no está: arma la matriz tú
+
+Hazlo solo si el usuario lo pide, o si Cowork avisa que el lector todavía no corre, o si pasó un
+día hábil desde que se dejaron los archivos y no llegó la nota. El formato es el mismo: el acta no
+distingue quién leyó.
+
+1. **Lee la ficha** con `wiki_leer("superavit/procesos/lector-de-respaldos.md")`: las reglas
+   comunes y la tabla «Fichas de lectura por documento» mandan.
+2. **Lista de lo esperado**: corre `acta_diagnostico` y toma de `tramos` los que tienen chequeo
+   `insumo:*` (con la `clave` que piden), los documentales y un estado de cuenta por cada diario
+   de banco o de tarjeta. En clientes SAE, además, el Excel «Anexos contables».
+3. **Cada archivo, por su contenido**, nunca por su nombre:
+   - Verifica **RUC y período** antes de leer. Si no coinciden, el archivo no se usa y se anota
+     por qué.
+   - Lee cada campo con su **cita**: la página («página 2») o la celda («Resumen!D12»), y el
+     renglón copiado tal cual.
+   - **Nunca adivines ni calcules** lo que el documento no trae: la celda queda vacía, con el
+     motivo.
+   - Con dos versiones del mismo documento, usa la más reciente (la sustitutiva antes que la
+     original) y anota la otra como no usada.
+4. **El sha256 de cada archivo** se calcula con la herramienta de análisis sobre el **mismo**
+   archivo que está en Odoo. El acta lo recalcula desde Odoo: si no coincide, el valor no se usa.
+5. **Los nombres de los campos** son estos, exactos:
+
+   | Tipo | Campos |
+   |---|---|
+   | `declaracion` (clave: 104 o 103) | `formulario`, `original_sustitutiva`, `numero_serie` y una fila por casilla con valor distinto de cero (el campo es el número de la casilla) |
+   | `estado_cuenta` (clave: el código del diario en Odoo) | `saldo_inicial`, `total_creditos`, `total_debitos`, `saldo_final` |
+   | `estado_tarjeta` (clave: el código del diario) | `fecha_corte`, `saldo_corte`, `pagos_periodo`, `consumos_periodo` |
+   | `planilla_iess` | `tipo`, `total_pagar` y, si trae detalle por empleado, `suma_detalle` |
+   | `sabana_rol` | `total_ingresos`, `total_descuentos`, `neto_recibir`, `aporte_patronal`, `decimo_tercero`, `decimo_cuarto`, `fondos_reserva`, `vacaciones` |
+   | `tabla_prestamo` | `banco`, `numero_operacion`, `capital_original`, `columna_usada`, `capital_saldo_insoluto`, `capital_suma_amortizacion`, `capital_12_meses`, `fecha_corte` |
+   | `arqueo_caja` | `fecha`, `quien_arqueo`, `efectivo_contado`, `vales`, `total` y, si trae denominaciones, `suma_denominaciones` |
+   | `valuacion_inventario` (solo clientes con otro sistema) | `fecha`, `valor_total` |
+   | `documento` (tramo documental) | `fecha`, `emisor` y `valor`, si el tramo pide uno |
+
+   Las sumas (`capital_suma_amortizacion`, `capital_12_meses`, `suma_detalle`,
+   `suma_denominaciones`) no las lees: las **calculas con la herramienta de análisis** a partir de
+   las filas que sí leíste, y en «Texto literal» dices qué filas sumaste. En la tabla de
+   amortización, el saldo es el de la **última cuota vencida al corte** (si ninguna venció, el
+   capital original), y la suma es la de la **amortización de capital** de las cuotas pendientes.
+   **La cuota nunca es capital.**
+6. **Arma el Excel** con la herramienta de análisis. Lleva tres hojas, con estos encabezados
+   exactos, y **solo valores, sin fórmulas**: el acta rechaza una matriz con fórmulas.
+   - **ESPERADOS:** Tramo · Tipo · Clave · Estado (leído, falta o duda) · Archivo
+   - **FUENTES:** Archivo · sha256 · Dónde estaba · Qué es · RUC · Período · Usado (sí, o «no —
+     motivo»)
+   - **VALORES:** Tipo · Clave · Campo · Valor · Archivo · sha256 · Ubicación · Texto literal ·
+     Estado (leído o vacío) · Motivo si vacío · Corrección manual · Motivo de la corrección ·
+     Corregido por
+
+   En «Dónde estaba» pon la tarea o la carpeta y, si lo sabes, «adjunto <id>». Nómbralo
+   `Matriz de respaldos del cierre - <Entidad> - <MM-AAAA>.xlsx`.
+7. **El usuario la adjunta** a la tarea «Revisión interna de EEFF» en una nota interna. La
+   arrastra él: tú no la mandas en base64 por el chat.
+8. **Comprueba** con `acta_diagnostico`: el bloque `planilla` del resumen dice cuántos documentos
+   se pueden usar, cuáles no y por qué, y qué fuentes rechazó el servidor. Corrige y vuelve a
+   adjuntar.
 
 ## Paso 4 — Salvedades
 
@@ -239,6 +324,9 @@ pendiente de documentar): si te piden el acta de uno de esos, frena y consulta c
   servidor emite.
 - **No declaras totales a mano** ni "ayudas a cuadrar" alterando datos para que pase un chequeo.
   Un descuadre real se corrige en la fuente o lleva salvedad — nunca se maquilla.
+- **En la matriz de respaldos, cada valor lleva su fuente**: archivo, sha256, ubicación y texto
+  literal. Lo que el documento no trae queda vacío, con el motivo. La corrección manual la escribe
+  una persona, con su motivo y su nombre; tú no la inventas.
 - **Salvedades:** hasta USD 500,00 las aprueba el supervisor; por encima, solo Irwin. Se piden
   antes del cierre, con código, causa, plan y texto para el cliente.
 - **La entrega sale en fecha y en el estado que corresponda** (en firme, con salvedades o con

@@ -1,5 +1,18 @@
 # Cambios
 
+## 1.11.0 — 2026-09-28 — ocho fichas nuevas en la matriz de respaldos
+
+- **`acta-cuadre`, Paso 3b.** La tabla de campos suma las fichas nuevas de la wiki: formulario 101
+  de renta, acta de junta o escritura, estudio actuarial, garantía, inversión, liquidación de
+  importación, contrato de obra y cartera comprada.
+- Lo que no está en la tabla se lee con la ficha genérica (`documento`): nunca se le dice al equipo
+  «no reconocido».
+- La lista de lo esperado ya no incluye lo que tiene el sistema o viene en «Anexos contables»
+  (cartera, proveedores, anticipos, relacionadas, activos, patrimonio, provisiones, resultado), ni
+  lo que calcula la firma.
+- En la columna «Tipo» vale el código del acta o el corto de la ficha (`tarjeta`, `iess`…): el acta
+  lee los dos.
+
 ## 1.10.0 — 2026-09-28 — la Matriz de respaldos del cierre
 
 - **`acta-cuadre`, Paso 3b (nuevo).** Desde el cierre de septiembre, el lector de respaldos del

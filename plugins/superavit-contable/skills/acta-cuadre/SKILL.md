@@ -151,7 +151,10 @@ distingue quién leyó.
    comunes y la tabla «Fichas de lectura por documento» mandan.
 2. **Lista de lo esperado**: corre `acta_diagnostico` y toma de `tramos` los que tienen chequeo
    `insumo:*` (con la `clave` que piden), los documentales y un estado de cuenta por cada diario
-   de banco o de tarjeta. En clientes SAE, además, el Excel «Anexos contables».
+   de banco o de tarjeta. En clientes SAE, además, el Excel «Anexos contables». **No se piden**
+   cartera, proveedores, anticipos, relacionadas, activos, patrimonio, provisiones ni resultado
+   (los tiene el sistema o vienen en «Anexos contables»), ni lo que calcula la firma (impuesto
+   diferido, provisiones propias). Los tramos OTROS y TRANSIT-DIR tampoco: los corrige Cowork.
 3. **Cada archivo, por su contenido**, nunca por su nombre:
    - Verifica **RUC y período** antes de leer. Si no coinciden, el archivo no se usa y se anota
      por qué.
@@ -175,7 +178,20 @@ distingue quién leyó.
    | `tabla_prestamo` | `banco`, `numero_operacion`, `capital_original`, `columna_usada`, `capital_saldo_insoluto`, `capital_suma_amortizacion`, `capital_12_meses`, `fecha_corte` |
    | `arqueo_caja` | `fecha`, `quien_arqueo`, `efectivo_contado`, `vales`, `total` y, si trae denominaciones, `suma_denominaciones` |
    | `valuacion_inventario` (solo clientes con otro sistema) | `fecha`, `valor_total` |
-   | `documento` (tramo documental) | `fecha`, `emisor` y `valor`, si el tramo pide uno |
+   | `documento` (ficha genérica: tramo documental o lo que no está en la tabla) | `fecha`, `emisor` y `valor`, si el tramo pide uno |
+   | `declaracion_renta` (formulario 101) | `formulario`, `anio_fiscal`, `original_sustitutiva`, `numero_serie` y una fila por casilla distinta de cero |
+   | `acta_junta` (acta de junta o escritura) | `fecha_acto`, `tipo_acto`, `fecha_inscripcion` y una fila `monto_<concepto>` por concepto aprobado (p. ej. `monto_dividendos`) |
+   | `estudio_actuarial` | `fecha_corte_estudio`, `perito`, `provision_jubilacion`, `provision_desahucio`, `costo_periodo` |
+   | `garantia` (póliza o contrato) | `emisor`, `numero`, `beneficiario`, `monto_garantizado`, `fecha_emision`, `fecha_vencimiento` |
+   | `inversion` (certificado o estado) | `emisor`, `numero`, `titular`, `capital`, `tasa`, `fecha_emision`, `fecha_vencimiento`, `interes_devengado` |
+   | `importacion` (DAI o liquidación) | `numero_dai`, `fecha`, `valor_fob`, `flete`, `seguro`, `valor_cif`, `tributos_pagados` |
+   | `contrato_obra` (con su planilla de avance) | `numero_contrato`, `obra`, `plazo`, `monto_contrato`, `avance_acumulado_pct`, `planillado_acumulado` |
+   | `cartera_comprada` | `vendedor`, `lote`, `fecha_compra`, `costo_adquisicion`, `valor_nominal`, `saldo_capital_corte` |
+
+   En la columna Tipo vale este código o el corto de la ficha (`tarjeta`, `iess`, `rol`,
+   `prestamo`, `arqueo`, `inventario`, `anexos_contables`, `generico`): el acta lee los dos. Un
+   documento que no está en la tabla se lee con la ficha genérica, nunca queda «no reconocido»
+   para el equipo.
 
    Las sumas (`capital_suma_amortizacion`, `capital_12_meses`, `suma_detalle`,
    `suma_denominaciones`) no las lees: las **calculas con la herramienta de análisis** a partir de

@@ -3,9 +3,10 @@ name: acta-cuadre
 description: >
   Operador del Acta de Cuadre Mensual de Superávit para los asistentes de IA del equipo (los
   responsables de cliente). Pide el acta al servidor odoo-mcp, interpreta los
-  bloqueos del preliminar, guía las correcciones en Odoo, sube los insumos por un enlace de un
-  solo uso, gestiona las salvedades (hasta USD 500,00 las aprueba el supervisor; por
-  encima, solo Irwin), cierra el ciclo hasta el acta EN FIRME con folio y revisa la vista previa
+  bloqueos del preliminar, guía las correcciones en Odoo, hace que los respaldos se adjunten a la
+  tarea «Revisión interna de EEFF» (el servidor los toma de ahí; el enlace de un solo uso queda de
+  respaldo), gestiona las salvedades (hasta USD 500,00 las aprueba el mismo responsable que las
+  pide; por encima, solo Irwin), cierra el ciclo hasta el acta EN FIRME con folio y revisa la vista previa
   del paquete de cierre que recibe el cliente. Activar SIEMPRE que el usuario diga "emite el
   acta", "pide el acta de cuadre", "el acta de tal cliente", "por qué no sale en firme", "carga
   este insumo", "sube la sábana del rol / la planilla del IESS / el F104 para el acta", "el
@@ -70,10 +71,28 @@ Cada línea de `bloqueos` cae en uno de estos casos:
    el saldo, y Cowork lo actualiza. No intentes editarlo tú.
 5. **Hallazgo no corregible en el mes**: ver Paso 4 (salvedad).
 
-## Paso 3 — Carga los insumos (enlace de un solo uso, nunca base64 por el chat)
+## Paso 3 — Los insumos: adjuntos a la tarea, el enlace solo de respaldo
 
-Los respaldos (sábana del rol, planillas IESS, F104/F103, tablas de préstamo, valuación de
-inventario, detalle de activos, respaldos documentales) se suben **uno por archivo**, así:
+**El único lugar donde el equipo deja un archivo es la tarea** (Irwin, 29-09-2026). El usuario
+adjunta cada respaldo del mes a la tarea **«Revisión interna de EEFF»** del período. Cuando corres
+el diagnóstico o el acta, **el servidor toma de ahí los insumos del corte** y los reconoce por su
+contenido: el F104 presentado, las planillas del IESS, las tablas de amortización, la sábana del
+rol, los arqueos de caja y, en clientes fuera de Odoo, el Excel «Anexos contables». Los parsea como
+siempre.
+
+- En los **avisos del diagnóstico** el servidor dice qué tomó de la tarea y qué adjunto no tomó, y
+  por qué. Léeselos al usuario: un respaldo que no se tomó se corrige adjuntando el archivo
+  correcto (un PDF escaneado sin texto, por ejemplo, no se puede leer).
+- El mismo archivo no se carga dos veces, y un archivo viejo que siga adjunto no reemplaza a uno
+  corregido que ya se cargó.
+- Los estados de cuenta del banco y de la tarjeta también van a la tarea: los lee el lector de
+  respaldos para la matriz (Paso 3b).
+
+### Respaldo: el enlace de un solo uso
+
+Úsalo **solo** cuando el servidor no pudo leer el archivo de la tarea, o cuando el tramo pide un
+insumo que no se reconoce por el contenido (un `documento` con su clave, un `reporte` de saldos).
+Nunca base64 por el chat. Uno por archivo, así:
 
 1. **`preparar_subida_insumo(instancia, fecha_corte, tipo, entidad, clave)`** con el tipo y la
    clave que pide la fila del acta (la nota del tramo lo dice textual, p. ej. tipo `documento`,
@@ -223,10 +242,9 @@ piezas: **código determinista exacto** que imprime el acta (formato
 `INSTANCIA-ENTIDAD-AAAA-MM-MÓDULO-monto`), **causa**, **plan de corrección** y **texto para el
 cliente**. Quién la aprueba depende del monto que imprimió el acta:
 
-- **Hasta USD 500,00, el supervisor del cliente**, con su propio usuario:
-  `aprobar_salvedad(codigo_hallazgo, motivo, texto_cliente=…)`, y el acta imprime quién aprobó.
-  El servidor se lo permite a cualquiera que tenga acceso a la base del cliente; tú la apruebas
-  solo si quien te lo pide es el supervisor.
+- **Hasta USD 500,00, el mismo responsable que la pide**, con su propio usuario:
+  `aprobar_salvedad(codigo_hallazgo, motivo, texto_cliente=…)`, y el acta imprime quién aprobó
+  (Irwin, 29-09-2026). No hace falta que la pida el supervisor.
 - **Por encima de USD 500,00, solo Irwin.** Tu clave no puede aprobarla: el servidor la rechaza,
   no lo intentes. Prepara el pedido para que el usuario se lo mande (WhatsApp o el canal que use),
   con el texto para el cliente ya redactado.
@@ -268,6 +286,9 @@ tiene:
 - **Fechas:** en formato dd-mm-aaaa, todas las veces que se pidió.
 - **El código de cuenta entre paréntesis es para el acta**: con él, el tramo sale «pendiente del
   cliente» y no como hallazgo. El informe lo quita al imprimir.
+- **Proyecto con varias entidades** (una entidad que va «todo junto» con otra del grupo): cada
+  línea empieza con su entidad entre corchetes, `[entidad]`, o cita su cuenta. Así sale en el
+  paquete de esa entidad; una línea sin entidad no sale en ningún paquete.
 - **Lo que no se pidió no va.** Tampoco lo que depende de la firma, como un respaldo que el
   equipo no cargó o un cuadre que no se hizo.
 
@@ -289,7 +310,12 @@ Vuelve a emitir el acta después de cada tanda de correcciones o insumos, hasta 
    - Revisa con el usuario que las cifras y los textos tengan sentido para el cliente.
    - **La subida del paquete.** Mira el campo `subida` de la respuesta:
      - Si dice «apagada», no uses `subir=True`.
-     - Si dice «encendida» y **el supervisor** lo pide, usa
+     - **Antes de subir un paquete CON LIMITACIÓN**, busca en el chatter de las tareas «Entrega
+       del mes» y «Revisión interna de EEFF» el correo enviado al cliente o la solicitud de
+       documento de **cada** fila de «Información pendiente del cliente». Si alguna fila no tiene
+       su correo o su solicitud, díselo al usuario y **no subas el paquete con limitación**: lo
+       que no se pidió por escrito no es limitación.
+     - Si dice «encendida» y **el responsable** lo pide («súbelo»), usa
        `paquete_cierre(instancia, fecha_corte, entidad, subir=True)`. El paquete sale sin la marca
        de vista previa y entra a firma. El firmador lo firma solo, y queda firmado en la tarea
        «Entrega del mes» y en la carpeta del mes del cliente en Documentos.
@@ -343,8 +369,10 @@ pendiente de documentar): si te piden el acta de uno de esos, frena y consulta c
 - **En la matriz de respaldos, cada valor lleva su fuente**: archivo, sha256, ubicación y texto
   literal. Lo que el documento no trae queda vacío, con el motivo. La corrección manual la escribe
   una persona, con su motivo y su nombre; tú no la inventas.
-- **Salvedades:** hasta USD 500,00 las aprueba el supervisor; por encima, solo Irwin. Se piden
-  antes del cierre, con código, causa, plan y texto para el cliente.
+- **Salvedades:** hasta USD 500,00 las aprueba el mismo responsable que las pide; por encima,
+  solo Irwin. Se piden antes del cierre, con código, causa, plan y texto para el cliente.
+- **Los respaldos se adjuntan a la tarea «Revisión interna de EEFF».** El enlace de un solo uso es
+  el respaldo, no el camino normal.
 - **La entrega sale en fecha y en el estado que corresponda** (en firme, con salvedades o con
   limitación). Nunca se deja abierta porque falte el cliente, y nunca se pide salvedad ni
   limitación por algo que depende de la firma: **lo que es de la firma no es limitación, y el

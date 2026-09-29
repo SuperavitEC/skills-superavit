@@ -1,5 +1,18 @@
 # Cambios
 
+## 1.12.0 — 2026-09-29 — los respaldos se adjuntan a la tarea
+
+- **`acta-cuadre`, Paso 3.** El único lugar donde el equipo deja un archivo es la tarea «Revisión
+  interna de EEFF»: el servidor toma de ahí los insumos del corte y los reconoce por su contenido
+  (F104, planillas del IESS, tablas de amortización, sábana del rol, arqueos y Anexos contables).
+  El diagnóstico dice qué tomó y qué no. El enlace de un solo uso queda de respaldo.
+- **Salvedades hasta USD 500,00:** las aprueba el mismo responsable que las pide.
+- **Paquete con limitación:** antes de subirlo, el asistente busca en el chatter el correo o la
+  solicitud de cada fila de «Información pendiente del cliente»; sin eso no lo sube con limitación.
+- **La subida la pide el responsable** («súbelo»).
+- **Proyecto con varias entidades:** cada línea de la información pendiente lleva `[entidad]` o su
+  cuenta.
+
 ## 1.11.0 — 2026-09-28 — ocho fichas nuevas en la matriz de respaldos
 
 - **`acta-cuadre`, Paso 3b.** La tabla de campos suma las fichas nuevas de la wiki: formulario 101

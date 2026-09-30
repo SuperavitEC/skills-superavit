@@ -1,6 +1,6 @@
 # Estructura del vault, alta y cierre
 
-Detalle de referencia para el SKILL.md. Leé esto cuando vayas a crear la estructura de un
+Detalle de referencia para el SKILL.md. Lee esto cuando vayas a crear la estructura de un
 cliente nuevo (Modo A1), cuando dudes de qué va exactamente en cada archivo fijo, o para el
 cierre con git.
 
@@ -35,17 +35,17 @@ superavit/                    ← la firma (cartera-clientes.md vive acá) — n
 
 Diferencia importante entre `_inbox/` y `_fuentes/`:
 - `_inbox/` viene en la plantilla; es para material que se carga a mano.
-- `_fuentes/` lo crea el alta (vos) y lo llena el pipeline del servidor de Code (correos de
+- `_fuentes/` lo crea el alta (tú) y lo llena el pipeline del servidor de Code (correos de
   `conocimiento@` → `_fuentes/correos/`; transcripciones → `_fuentes/transcripciones/`). De
-  acá leés para destilar (Modo B). NUNCA escribís ni movés acá.
+  acá lees para destilar (Modo B). NUNCA escribes ni mueves acá.
 
 Ambas empiezan con `_` → ninguna la sirve el MCP a los agentes. Todo lo consumible va en los
 archivos fijos sin guion bajo.
 
 ## Alta — comandos exactos (Modo A1)
 
-Operás en el clon local del vault. En bash el vault está en
-`/sessions/<sesión>/mnt/wikis-superavit`. Ajustá `<slug>` y las entidades.
+Operas en el clon local del vault. En bash el vault está en
+`/sessions/<sesión>/mnt/wikis-superavit`. Ajusta `<slug>` y las entidades.
 
 ```bash
 cd /sessions/<sesión>/mnt/wikis-superavit/clientes
@@ -69,7 +69,7 @@ mkdir -p _fuentes/correos _fuentes/transcripciones
 touch _fuentes/correos/.gitkeep _fuentes/transcripciones/.gitkeep
 ```
 
-Después, con las herramientas de archivo (Read/Edit), llená el frontmatter de cada archivo
+Después, con las herramientas de archivo (Read/Edit), llena el frontmatter de cada archivo
 fijo: `entidad: <razón social>`, `ruc: "<RUC>"` (con comillas, para que no se interprete
 como número y pierda ceros), `ultima-revision: <fecha>`. En los del grupo: `grupo: <nombre>`.
 
@@ -97,25 +97,25 @@ cuentas; Plataformas de pago (Payphone, etc.); Repositorio de documentos.
 
 ### `criterios-contables.md` (por entidad) — EL CRÍTICO
 Lo lee el agente de Registro por ruta fija. Las 6 secciones NO se renombran ni reordenan; se
-agrega dentro de ellas. Cuando una no aplica, decilo explícito ("ICE — no aplica", "no
+agrega dentro de ellas. Cuando una no aplica, dilo explícito ("ICE — no aplica", "no
 maneja centros de costo").
 
-1. **Retenciones de IVA** — por tipo de proveedor y particularidad. Decí si la entidad es o
+1. **Retenciones de IVA** — por tipo de proveedor y particularidad. Di si la entidad es o
    no agente de retención designado (dato del RUC), qué formulario declara (103), y los
    criterios propios. Los porcentajes generales no se copian: se referencian a
    `sistemas/sri/retenciones-iva.md`.
-2. **Retenciones de Renta** — análogo; referenciá `sistemas/sri/retenciones-ir.md`. Anotá
+2. **Retenciones de Renta** — análogo; referencia `sistemas/sri/retenciones-ir.md`. Anota
    particularidades (ej. retención por relación de dependencia si es la empleadora).
 3. **Particularidades del giro** — el grueso de los criterios operativos: casos especiales,
    flujos intercompañía, regularizaciones, decisiones del cliente. Subtítulos `###` por caso.
 4. **Plan de cuentas y centros de costo** — normalmente "plan estándar de Superávit, ver
-   `sistemas/plan-de-cuentas/`"; decí si maneja o no centros de costo.
+   `sistemas/plan-de-cuentas/`"; di si maneja o no centros de costo.
 5. **Calendario de obligaciones tributarias** — mensuales (IVA, 103, ATS), anuales (Renta,
    anexos), y el noveno dígito del RUC para los vencimientos.
 6. **Decisiones de criterio (histórico)** — log append-only. Una línea por decisión:
    `AAAA-MM-DD — <decisión>: <razón>. (Fuente: ...)`.
 
-Para calibrar profundidad y estilo, abrí el `criterios-contables.md` de un cliente ya trabajado
+Para calibrar profundidad y estilo, abre el `criterios-contables.md` de un cliente ya trabajado
 (`wiki_listar_clientes` te dice cuáles hay): criterios densos, citados, con marcadores
 `<pendiente: ...>` donde falta dato.
 
@@ -124,17 +124,17 @@ Para calibrar profundidad y estilo, abrí el `criterios-contables.md` de un clie
 - `contactos.md` — personas. Formato por línea: `Nombre — rol — correo — celular — notas`.
   Una parte cliente y una parte Superávit.
 - `acuerdos-superavit.md` — alcance del servicio, frecuencia de entregables, plazos,
-  canales. **Honorarios:** describí la modalidad sin cifras (ver Confidencialidad en SKILL.md).
+  canales. **Honorarios:** describe la modalidad sin cifras (ver Confidencialidad en SKILL.md).
 - `historico.md` — hitos (cambio de representante, fusiones), incidencias/precedentes,
   cambios externos del SRI que afectan al grupo.
 
 ## Cierre — git (Modo A y B)
 
-Al terminar cualquier corrida, propagá al servidor:
+Al terminar cualquier corrida, propaga al servidor:
 
 ```bash
 cd /sessions/<sesión>/mnt/wikis-superavit
-git status                                   # revisá qué cambió
+git status                                   # revisa qué cambió
 git add clientes/<slug>                       # solo lo de cliente; NUNCA _fuentes/ (no lo tocaste)
 git commit -m "feat(clientes/<slug>): <qué destilaste o creaste>"
 git push
@@ -144,5 +144,5 @@ Mensajes de commit útiles (la trazabilidad importa, es una firma contable):
 - Alta: `feat(clientes/<slug>): alta de <Cliente> (<N> entidades)`
 - Destilación: `feat(clientes/<slug>): destilo <fuente> a criterios <entidad>`
 
-Si `git push` pide credenciales o falla, no fuerces nada: avisá a Irwin (su Obsidian Git
+Si `git push` pide credenciales o falla, no fuerces nada: avisa a Irwin (su Obsidian Git
 igual sincroniza cada 10 min, pero conviene confirmar que el push salió).

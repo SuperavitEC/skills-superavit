@@ -4,7 +4,7 @@ Cliente: <slug>
 estado: pendiente
 
 - <hallazgo de conocimiento que vale para la wiki: lo que el cliente aclaró, una particularidad
-  del giro, una decisión de criterio, un cambio externo. Anotá la fuente y la fecha.>
+  del giro, una decisión de criterio, un cambio externo. Anota la fuente y la fecha.>
 
 <!--
 Reglas del archivo conocimiento-anexos.md (lo mantienen las 3 skills):

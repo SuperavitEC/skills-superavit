@@ -1,7 +1,7 @@
 # Gráfico de pasos — Fase 1 (revisión y corrección)
 
-Al arrancar, mostrá SIEMPRE este flujo (en Cowork renderalo como gráfico horizontal con la
-herramienta de visualización; si no, listá los pasos). Es fijo, para que el usuario sepa cómo
+Al arrancar, muestra SIEMPRE este flujo (en Cowork renderízalo como gráfico horizontal con la
+herramienta de visualización; si no, lista los pasos). Es fijo, para que el usuario sepa cómo
 te vas a comportar.
 
 Pasos, en orden, con un muro entre etapas:

@@ -1,6 +1,6 @@
 # Gráfico de pasos — Fase 3 (análisis de fondo)
 
-Al arrancar, mostrá SIEMPRE este flujo (en Cowork renderalo como gráfico; si no, listá los pasos):
+Al arrancar, muestra SIEMPRE este flujo (en Cowork renderízalo como gráfico; si no, lista los pasos):
 
 1. Conocimiento — abrir la sección del corte en `conocimiento-anexos.md`.
 2. Análisis de fondo sobre los anexos — antigüedad · incoherencias · patrones.

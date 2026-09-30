@@ -291,7 +291,7 @@ def reporte(res, cuentas, meta_bg, meta_pyg, nfilas):
     L.append("")
     mv = ch["modulos_a_verificar"]
     L.append("【E】 CUENTAS CON MÓDULO (cuadre módulo↔contable — pendiente del reporte)")
-    L.append("   Para verificar estas, pasá el reporte del módulo correspondiente:")
+    L.append("   Para verificar estas, pasa el reporte del módulo correspondiente:")
     for c in mv["cuentas"]:
         L.append(f"   • {c['codigo']:<12} {c['nombre'][:38]:<38} {money(c['saldo'])}  → {c['modulo']}")
     if not mv["cuentas"]: L.append("   (Ninguna identificada.)")

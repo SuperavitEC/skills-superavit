@@ -199,7 +199,7 @@ def main():
         for nom,ruc,ape_t,pre_c,dif in hfilas[:25]:
             print(f"    {nom[:30]:<30} {ruc:<14} cierre {ape_t:>10,.2f}  pend.corte {pre_c:>10,.2f}  dif {dif:>10,.2f}")
     else:
-        print(f"\n  (Sin --apertura no se abre el histórico por tercero; pasá el módulo al cierre del año anterior.)")
+        print(f"\n  (Sin --apertura no se abre el histórico por tercero; pasa el módulo al cierre del año anterior.)")
 
 if __name__=="__main__":
     main()

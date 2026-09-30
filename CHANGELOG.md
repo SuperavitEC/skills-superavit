@@ -1,5 +1,11 @@
 # Cambios
 
+## 1.13.1 — 2026-09-30 — tuteo en las cinco skills que quedaban
+
+- `analisis-anexos-sae`, `anexos-sae`, `revision-eef-odoo`, `revision-eef-sae` y `wikisuperavit` pasan de
+  voseo a tuteo, como las demás desde la 1.8.0. Solo cambia la forma verbal y los pronombres; el contenido,
+  los pasos y los guiones son los mismos.
+
 ## 1.13.0 — 2026-09-30 — el semáforo de la entrega
 
 - **`acta-cuadre`, Paso 5.** La entrega tiene tres colores y sale con el más severo: en firme,

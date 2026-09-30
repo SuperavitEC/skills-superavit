@@ -1,6 +1,6 @@
 # Gráfico de pasos — Fase 2 (anexos)
 
-Al arrancar, mostrá SIEMPRE este flujo (en Cowork renderalo como gráfico; si no, listá los pasos):
+Al arrancar, muestra SIEMPRE este flujo (en Cowork renderízalo como gráfico; si no, lista los pasos):
 
 1. Plan + insumos + conocimiento.
 2. Análisis de tamaño → proponer modo (todo de una / cuenta por cuenta con OK).

@@ -70,6 +70,14 @@ Cada línea de `bloqueos` cae en uno de estos casos:
    el mapa o una cuenta nueva no está mapeada, se reporta en la tarea, con el código de cuenta y
    el saldo, y Cowork lo actualiza. No intentes editarlo tú.
 5. **Hallazgo no corregible en el mes**: ver Paso 4 (salvedad).
+6. **Falla del sistema** (un tramo «no evaluado»): es un problema del programa, no del cliente
+   ni del responsable, y **frena** la entrega. Ya está en la cola de Code, que la reintenta cada
+   3 horas: no hagas nada más que esperar. **Si llega el día de la entrega y sigue así**, el
+   responsable comprueba ese saldo a mano contra su fuente y lo declara con
+   `declarar_tramo(instancia, fecha_corte, clave, fuente, motivo, entidad)`: `fuente` es el
+   documento y su fecha, `motivo` qué comprobó y cómo. El tramo cuenta como cuadrado y el paquete
+   sigue su color. **Nunca se le menciona al cliente**: ningún texto, salvedad ni fila habla de
+   fallas.
 
 ## Paso 3 — Los insumos: adjuntos a la tarea, el enlace solo de respaldo
 
@@ -267,13 +275,36 @@ la originó y cómo se cierra». La causa técnica (`motivo`) se queda en el act
 o menos la tolerancia del tramo. Si el descuadre se sale de esa tolerancia, cae y el acta vuelve
 a preliminar.
 
-## Paso 5 — Lo que falta del cliente, por escrito y a tiempo
+## Paso 5 — Lo que falta del cliente: el semáforo de la entrega
 
-Cuando marques la espera del cliente, llena también el campo **«Información pendiente del
+La entrega tiene tres colores (Irwin, 30-09-2026), y el color es **el más severo** que haya:
+
+- 🟢 **En firme:** todo está bien.
+- 🟡 **Con salvedades:** errores menores con salvedad aprobada (Paso 4) y **saldos no
+  comprobados** porque el cliente no mandó el documento (el extracto, la tabla del préstamo, el
+  rol, el inventario, el arqueo). Lo registrado está; solo no se comprobó. **Esto lo pone el
+  paquete solo**: no hay nada que aprobar. Revísalo en la vista previa.
+- 🔴 **Con limitación al alcance:** hay evidencia de que algo **no consta en los estados
+  financieros** por falta de información del cliente (consumos de la tarjeta que no se
+  registraron porque no llegó el estado de cuenta, ventas o compras del mes sin sus facturas,
+  movimientos del banco sin identificar llevados a una transitoria). **Lo declara el
+  responsable** en el campo **«No consta en los EEFF»** de la tarea, una línea por caso:
+  `rubro — qué no consta — fecha en que se pidió` (la fecha en dd-mm-aaaa). **Sin la fecha del
+  pedido no hay limitación y el paquete no sale.** Si la línea cita la cuenta de un tramo con
+  diferencia, la limitación la cubre y ese hallazgo no pide salvedad. Ante la duda, amarillo: el
+  rojo exige evidencia.
+- **Lo de la firma no tiene color: frena** (declaraciones, planilla del IESS, papeles propios,
+  período sin bloquear, hallazgos sin corregir ni salvedad, fallas del sistema). Nada de la firma
+  se disfraza de salvedad ni de limitación.
+
+**El rol de pagos:** lo genera el cliente, salvo donde la firma lo hace (el mapa del cliente lo
+marca con `fuente=firma` y allí la nómina frena). Antes de dejar la nómina en amarillo, revisa en SAE si el cliente ya
+generó el rol: si está, descárgalo y cárgalo.
+
+Además, cuando marques la espera del cliente, llena el campo **«Información pendiente del
 cliente»** de la tarea **«Entrega del mes»** (en las tareas de agosto se llama «Emisión Estados
-Financieros»). Está en la pestaña «Motor de tareas», en el bloque «Entrega del mes». Es lo que imprime el informe de cierre en «Información no recibida» y
-lo único que permite entregar **con limitación**: **sin ese campo no hay limitación**, y lo que
-falta pasa a ser pendiente de la firma, así que el paquete no sale.
+Financieros»), en la pestaña «Motor de tareas». Es lo que el informe de cierre imprime en
+«Información no recibida», con efecto «saldo no comprobado» (amarillo).
 
 Una línea numerada por cada cosa pedida, con lo que se pidió, cuándo, por qué canal y qué efecto
 tiene:
@@ -284,8 +315,8 @@ tiene:
 
 - **Canal:** correo, WhatsApp, teléfono, Teams o el canal del proyecto.
 - **Fechas:** en formato dd-mm-aaaa, todas las veces que se pidió.
-- **El código de cuenta entre paréntesis es para el acta**: con él, el tramo sale «pendiente del
-  cliente» y no como hallazgo. El informe lo quita al imprimir.
+- **El código de cuenta entre paréntesis** ayuda a ubicar el pedido; el informe lo quita al
+  imprimir. Lo que vuelve rojo un tramo ya no es este campo sino «No consta en los EEFF».
 - **Proyecto con varias entidades** (una entidad que va «todo junto» con otra del grupo): cada
   línea empieza con su entidad entre corchetes, `[entidad]`, o cita su cuenta. Así sale en el
   paquete de esa entidad; una línea sin entidad no sale en ningún paquete.
@@ -301,20 +332,22 @@ Vuelve a emitir el acta después de cada tanda de correcciones o insumos, hasta 
    (informe de cierre, resumen gerencial y estados financieros):
    `paquete_cierre(instancia, fecha_corte, entidad)`. Guárdalo como archivo local para que el
    usuario lo revise. Viene marcado «VISTA PREVIA — NO ENVIAR AL CLIENTE».
-   - `estado` es el estado de la entrega: EN FIRME, CON SALVEDADES o CON LIMITACIÓN. Ese es el que
-     va en la tarea; no lo elijas tú.
-   - Si `sale` es `false`, **el paquete no sale**. En `bloqueos_de_la_firma` está lo pendiente de
-     la firma: un hallazgo sin salvedad, un respaldo sin cargar, el período sin bloquear, una
-     salvedad sin texto para el cliente. Eso se corrige; nunca se convierte en limitación ni en
-     salvedad para que el paquete salga.
+   - `estado` es el estado de la entrega: EN FIRME, CON SALVEDADES o CON LIMITACIÓN (el semáforo
+     del Paso 5). Ese es el que va en la tarea; no lo elijas tú.
+   - Si `sale` es `false`, **el paquete no sale** y `estado` dice **PRELIMINAR**; `saldria_como`
+     dice con qué color saldría al corregir. En `bloqueos_de_la_firma` está lo pendiente de la
+     firma: un hallazgo sin salvedad, un respaldo de la firma sin cargar, el período sin bloquear,
+     una salvedad sin texto para el cliente, una limitación sin la fecha del pedido, un tramo sin
+     evaluar. Eso se corrige; nunca se convierte en limitación ni en salvedad para que el paquete
+     salga.
    - Revisa con el usuario que las cifras y los textos tengan sentido para el cliente.
    - **La subida del paquete.** Mira el campo `subida` de la respuesta:
      - Si dice «apagada», no uses `subir=True`.
      - **Antes de subir un paquete CON LIMITACIÓN**, busca en el chatter de las tareas «Entrega
        del mes» y «Revisión interna de EEFF» el correo enviado al cliente o la solicitud de
-       documento de **cada** fila de «Información pendiente del cliente». Si alguna fila no tiene
-       su correo o su solicitud, díselo al usuario y **no subas el paquete con limitación**: lo
-       que no se pidió por escrito no es limitación.
+       documento de **cada** línea de «No consta en los EEFF». Si alguna no tiene su correo o su
+       solicitud, díselo al usuario y **no subas el paquete con limitación**: lo que no se pidió por
+       escrito no es limitación.
      - Si dice «encendida» y **el responsable** lo pide («súbelo»), usa
        `paquete_cierre(instancia, fecha_corte, entidad, subir=True)`. El paquete sale sin la marca
        de vista previa y entra a firma. El firmador lo firma solo, y queda firmado en la tarea

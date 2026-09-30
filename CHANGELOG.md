@@ -1,5 +1,18 @@
 # Cambios
 
+## 1.13.0 — 2026-09-30 — el semáforo de la entrega
+
+- **`acta-cuadre`, Paso 5.** La entrega tiene tres colores y sale con el más severo: en firme,
+  con salvedades (errores menores con salvedad y saldos no comprobados porque el cliente no mandó el
+  documento, que el paquete pone solo) y con limitación al alcance (lo que no consta en los estados
+  financieros, que el responsable declara en «No consta en los EEFF» con la fecha del pedido). Lo de
+  la firma no tiene color: frena.
+- **Paso 2.** Una falla del sistema frena y la reintenta el servidor; si llega el día de la entrega, el
+  responsable comprueba el saldo a mano y lo declara con `declarar_tramo`. Nunca se le menciona al
+  cliente.
+- **Paso 6.** Si el paquete no sale, su estado es PRELIMINAR y `saldria_como` dice con qué color
+  saldría.
+
 ## 1.12.0 — 2026-09-29 — los respaldos se adjuntan a la tarea
 
 - **`acta-cuadre`, Paso 3.** El único lugar donde el equipo deja un archivo es la tarea «Revisión

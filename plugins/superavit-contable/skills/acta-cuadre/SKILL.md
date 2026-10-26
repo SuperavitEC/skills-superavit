@@ -81,6 +81,13 @@ Cada línea de `bloqueos` cae en uno de estos casos:
    documento y su fecha, `motivo` qué comprobó y cómo. El tramo cuenta como cuadrado y el paquete
    sigue su color. **Nunca se le menciona al cliente**: ningún texto, salvedad ni fila habla de
    fallas.
+7. **El usuario insiste en algo que ya hizo** («ya lo cargué y el acta lo sigue pidiendo», «esto no
+   es del cierre»): ofrécele reportarlo a Code con
+   `reportar_falla(instancia, fecha_corte, tramo, que_paso, entidad)`. `tramo` es la clave o el
+   nombre del tramo y `que_paso`, sus palabras. **Hazlo antes de mandarlo a preguntarle a Irwin.**
+   Muéstrale el `falla_en_code` que devuelve, tal cual: el tramo deja de pedirle salvedad mientras
+   Code lo revisa, y le llega un correo cuando quede corregido o, si no era una falla del
+   programa, con el motivo.
 
 ## Paso 3 — Los insumos: adjuntos a la tarea, el enlace solo de respaldo
 

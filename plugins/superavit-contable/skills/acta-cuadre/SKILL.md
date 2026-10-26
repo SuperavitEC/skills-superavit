@@ -70,9 +70,12 @@ Cada línea de `bloqueos` cae en uno de estos casos:
    el mapa o una cuenta nueva no está mapeada, se reporta en la tarea, con el código de cuenta y
    el saldo, y Cowork lo actualiza. No intentes editarlo tú.
 5. **Hallazgo no corregible en el mes**: ver Paso 4 (salvedad).
-6. **Falla del sistema** (un tramo «no evaluado»): es un problema del programa, no del cliente
-   ni del responsable, y **frena** la entrega. Ya está en la cola de Code, que la reintenta cada
-   3 horas: no hagas nada más que esperar. **Si llega el día de la entrega y sigue así**, el
+6. **Falla del sistema** (un tramo «no evaluado» o «falla probable del programa»): es un problema
+   del programa, no del cliente ni del responsable, y **frena** la entrega. **Si la respuesta trae
+   `falla_en_code`, muéstraselo al usuario tal cual y no sugieras salvedad ni corrección**: ya está
+   en manos de Code y al usuario le llega un correo cuando esté corregida. Un tramo «falla probable
+   del programa» se trata igual que una falla del sistema. El usuario sigue con el resto del cierre
+   y el servidor la reintenta cada hora: no hagas nada más que esperar. **Si llega el día de la entrega y sigue así**, el
    responsable comprueba ese saldo a mano contra su fuente y lo declara con
    `declarar_tramo(instancia, fecha_corte, clave, fuente, motivo, entidad)`: `fuente` es el
    documento y su fecha, `motivo` qué comprobó y cómo. El tramo cuenta como cuadrado y el paquete

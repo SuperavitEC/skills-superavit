@@ -264,9 +264,26 @@ cliente**. Quién la aprueba depende del monto que imprimió el acta:
 - **Hasta USD 500,00, el mismo responsable que la pide**, con su propio usuario:
   `aprobar_salvedad(codigo_hallazgo, motivo, texto_cliente=…)`, y el acta imprime quién aprobó
   (Irwin, 29-09-2026). No hace falta que la pida el supervisor.
-- **Por encima de USD 500,00, solo Irwin.** Tu clave no puede aprobarla: el servidor la rechaza,
-  no lo intentes. Prepara el pedido para que el usuario se lo mande (WhatsApp o el canal que use),
-  con el texto para el cliente ya redactado.
+- **Por encima de USD 500,00 de diferencia de dinero, solo Irwin** (regla de Irwin del 30-10-2026).
+  Tu clave no puede aprobarla. Se pide **en la herramienta**: `aprobar_salvedad` para las del acta o
+  `declarar_salvedad` para las que no salen del acta. Lleva `motivo`, `plan` y `texto_cliente`, y
+  además **los tres puntos**:
+  1. `origen_documento`: **qué pasó**, con el asiento o documento que lo causó, no solo la
+     diferencia del acta. Si es error nuestro, se dice.
+  2. `resolucion`: **cómo se resuelve**: tipo de asiento, módulo, afectaciones contables y
+     comunicaciones con fecha y responsables. **Nunca un ajuste contra resultados acumulados**: el
+     servidor devuelve ese plan.
+  3. `fuente_cifras`: **de dónde sale cada cifra**.
+
+  Si falta alguno, la herramienta la devuelve y no le llega a Irwin. Además, el usuario le manda a
+  Irwin **un correo aparte por cada salvedad**, con esos tres puntos.
+  - **Por WhatsApp ya no se piden salvedades.** Los criterios se piden aparte, no dentro de la
+    salvedad.
+  - Quien pide la salvedad responde por ella y por sus consecuencias: Irwin da por cierto lo que
+    dice.
+- **Un error del acta nunca es salvedad.** Si el tramo no se evaluó por una falla del programa, o
+  tiene una falla abierta, el servidor rechaza la salvedad (`error_del_acta`). Repórtalo con
+  `reportar_falla` y sigue con lo demás: las salvedades son por diferencias reales.
 
 **El texto para el cliente** es lo que lee el cliente en el informe de cierre, en la columna «qué
 la originó y cómo se cierra». La causa técnica (`motivo`) se queda en el acta; esto es otra cosa:
@@ -415,6 +432,11 @@ pendiente de documentar): si te piden el acta de uno de esos, frena y consulta c
   una persona, con su motivo y su nombre; tú no la inventas.
 - **Salvedades:** hasta USD 500,00 las aprueba el mismo responsable que las pide; por encima,
   solo Irwin. Se piden antes del cierre, con código, causa, plan y texto para el cliente.
+  - Las de Irwin van en la herramienta, con los tres puntos (documento, resolución y fuente de cada
+    cifra), y con un correo aparte por cada una.
+  - Nada por WhatsApp.
+  - Nunca contra resultados acumulados.
+  - Un error del acta no es salvedad: es falla.
 - **Los respaldos se adjuntan a la tarea «Revisión interna de EEFF».** El enlace de un solo uso es
   el respaldo, no el camino normal.
 - **La entrega sale en fecha y en el estado que corresponda** (en firme, con salvedades o con

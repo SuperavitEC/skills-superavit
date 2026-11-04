@@ -1,5 +1,10 @@
 # Cambios
 
+## 1.17.0 — 2026-11-04 — skill de certificados
+
+- Nueva skill `certificados`: arma certificados de la firma con el membrete y formato oficial; textos y
+  firmante en la wiki `superavit/procesos/certificados.md`.
+
 ## 1.13.1 — 2026-09-30 — tuteo en las cinco skills que quedaban
 
 - `analisis-anexos-sae`, `anexos-sae`, `revision-eef-odoo`, `revision-eef-sae` y `wikisuperavit` pasan de

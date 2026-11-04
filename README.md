@@ -58,6 +58,7 @@ O desde **Customize → Plugins**, refrescando el marketplace.
 | `agente-nomina` | Carga del asiento de nómina |
 | `agente-impuestos-odoo` | Declaración mensual F104 / F103 en Odoo |
 | `revision-eef-odoo` / `revision-eef-sae` | Revisión de EEFF, según la fuente sea Odoo o SAE |
+| `certificados` | Certificados de la firma con el membrete y formato oficial |
 | `wikisuperavit` | Gestión de las wikis de cliente (alta y destilación) — útil solo para quien tiene el vault |
 
 Las skills **no traen el procedimiento contable**: cada agente lo lee de la sección que le

@@ -85,10 +85,16 @@ Cada línea de `bloqueos` cae en uno de estos casos:
 7. **El usuario insiste en algo que ya hizo** («ya lo cargué y el acta lo sigue pidiendo», «esto no
    es del cierre»): ofrécele reportarlo a Code con
    `reportar_falla(instancia, fecha_corte, tramo, que_paso, entidad)`. `tramo` es la clave o el
-   nombre del tramo y `que_paso`, sus palabras. **Hazlo antes de mandarlo a preguntarle a Irwin.**
+   nombre del tramo y `que_paso`, sus palabras. **Nunca se le escribe a Irwin por un error del acta,
+   un texto o una ficha:** se reporta aquí.
    Muéstrale el `falla_en_code` que devuelve, tal cual: el tramo deja de pedirle salvedad mientras
    Code lo revisa, y le llega un correo cuando quede corregido o, si no era una falla del
    programa, con el motivo.
+8. **Lo que está mal es el texto o el criterio de una ficha** (un párrafo del informe de cierre, una
+   regla del mapa; el servidor «no tiene error: copia el texto de la ficha»): repórtalo igual, con
+   `reportar_falla(instancia, fecha_corte, que_paso, entidad, paso="ficha", tramo=<qué ficha o
+   párrafo>)`. Va a Cowork, que la corrige en la wiki; al usuario le llega el correo de «quedó
+   corregida» y entonces vuelve a generar lo que hacía falta. Muéstrale el texto que devuelve, tal cual.
 
 ## Paso 3 — Los insumos: adjuntos a la tarea, el enlace solo de respaldo
 
@@ -445,5 +451,6 @@ pendiente de documentar): si te piden el acta de uno de esos, frena y consulta c
   paquete no sale hasta corregirlo.**
 - **Sin «Información pendiente del cliente» no hay limitación.**
 - Si algo del proceso falla o no se entiende (tool que no responde, bloqueo confuso, insumo
-  rechazado sin razón clara), **anótalo y que el usuario se lo reporte a Irwin** — ese feedback
-  mejora el sistema.
+  rechazado sin razón clara, un texto o un criterio de una ficha que no corresponde), **repórtalo con
+  `reportar_falla`** (el paso que corresponda, o `paso="ficha"`). Nunca se le escribe a Irwin por
+  eso: a Irwin solo le llegan las salvedades de más de USD 500,00, por su camino.

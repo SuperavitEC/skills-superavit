@@ -1,5 +1,12 @@
 # Cambios
 
+## 1.17.1 · 2026-11-19 · un texto o una ficha también se reporta
+
+- `acta-cuadre`: cuando lo que está mal es el texto o el criterio de una ficha de la wiki (el servidor lo copia
+  tal cual), se reporta con `reportar_falla(paso="ficha")`: va a Cowork, que la corrige, y al usuario le llega el
+  correo de «quedó corregida». Nunca se le escribe a Irwin por un error del acta, un texto o una ficha; a Irwin
+  solo le llegan las salvedades de más de USD 500,00.
+
 ## 1.17.0 — 2026-11-04 — skill de certificados
 
 - Nueva skill `certificados`: arma certificados de la firma con el membrete y formato oficial; textos y

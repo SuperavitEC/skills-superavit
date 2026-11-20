@@ -70,6 +70,12 @@ Cada línea de `bloqueos` cae en uno de estos casos:
    el mapa o una cuenta nueva no está mapeada, se reporta en la tarea, con el código de cuenta y
    el saldo, y Cowork lo actualiza. No intentes editarlo tú.
 5. **Hallazgo no corregible en el mes**: ver Paso 4 (salvedad).
+   **La continuidad nunca es salvedad.** La fila CONTINUIDAD «MES ANTERIOR MODIFICADO» quiere
+   decir que alguien registró en el mes anterior después de su acta. No se pide salvedad ni se le
+   escribe a Irwin. Se corre `acta_diagnostico` del mes anterior, se corrige lo que lo frene hasta
+   que salga en firme y se vuelve a emitir el acta de este mes: el servidor reemite sola la del mes
+   anterior. Si el diagnóstico de este mes ya dice que al emitir se reemite sola, basta con emitir.
+   El cliente lo lee en «Regularizado del mes anterior».
 6. **Falla del sistema** (un tramo «no evaluado», «falla probable del programa», «falla reportada» o
    «falla del programa detectada por lo que hizo el equipo»): es un problema
    del programa, no del cliente ni del responsable, y **frena** la entrega. **Si la respuesta trae
